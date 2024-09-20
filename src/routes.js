@@ -47,6 +47,8 @@ import AboutUs from "layouts/pages/landing-pages/about-us";
 import ContactUs from "layouts/pages/landing-pages/contact-us";
 import Author from "layouts/pages/landing-pages/author";
 import SignIn from "layouts/pages/authentication/sign-in";
+import VolunteerForms from "layouts/pages/landing-pages/volunteer-forms";
+import VolunteerHistory from "pages/LandingPages/VolunteerHistory";
 
 // Sections
 import PageHeaders from "layouts/sections/page-sections/page-headers";
@@ -92,6 +94,16 @@ const routes = [
             name: "author",
             route: "/pages/landing-pages/author",
             component: <Author />,
+          },
+          {
+            name: "VolunteerForms",
+            route: "/pages/landing-pages/volunteer-forms",
+            component: <VolunteerForms />,
+          },
+          {
+            name: "VolunteerHistory",
+            route: "/pages/landing-pages/volunteer-history",
+            component: <VolunteerHistory />,
           },
         ],
       },
