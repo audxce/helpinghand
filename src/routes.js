@@ -42,8 +42,10 @@ import Icon from "@mui/material/Icon";
 // Pages
 import AboutUs from "layouts/pages/landing-pages/about-us";
 import ContactUs from "layouts/pages/landing-pages/contact-us";
+
 import Login from "pages/HelpingHandPages/Login";
 import UserRegistration from "pages/HelpingHandPages/UserRegistration";
+import ProfileEdit from "layouts/pages/landing-pages/profile-edit";
 
 const routes = [
   {
@@ -79,6 +81,11 @@ const routes = [
             name: "User Registration",
             route: "/pages/HelpingHandPages/UserRegistration",
             component: <UserRegistration />,
+          },
+          {
+            name: "profile",
+            route: "/pages/landing-pages/profile-edit",
+            component: <ProfileEdit />,
           },
         ],
       },
