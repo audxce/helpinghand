@@ -231,6 +231,11 @@ function ProfileEdit() {
                   <MKBox component="section" py={3}>
                     <Container>
                       <Grid container item xs={12} lg={8} py={1} mx="auto">
+                        <Grid item xs={12} sm={10}>
+                          <MKTypography variant="h6" color="gray" fontsize="5">
+                            Skills*
+                          </MKTypography>
+                        </Grid>
                         <Select
                           //defaultValue={[colourOptions[2], colourOptions[3]]}
                           isMulti
