@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 // react-router components
 import { Link } from "react-router-dom";
@@ -24,17 +24,17 @@ import PropTypes from "prop-types";
 
 // @mui material components
 import Container from "@mui/material/Container";
-import Icon from "@mui/material/Icon";
-import Popper from "@mui/material/Popper";
-import Grow from "@mui/material/Grow";
-import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
+import Grid from "@mui/material/Grid";
+import Grow from "@mui/material/Grow";
+import Icon from "@mui/material/Icon";
 import MuiLink from "@mui/material/Link";
+import Popper from "@mui/material/Popper";
 
 // Material Kit 2 React components
 import MKBox from "components/MKBox";
-import MKTypography from "components/MKTypography";
 import MKButton from "components/MKButton";
+import MKTypography from "components/MKTypography";
 
 // Material Kit 2 React example components
 import DefaultNavbarDropdown from "examples/Navbars/DefaultNavbar/DefaultNavbarDropdown";
@@ -42,6 +42,10 @@ import DefaultNavbarMobile from "examples/Navbars/DefaultNavbar/DefaultNavbarMob
 
 // Material Kit 2 React base styles
 import breakpoints from "assets/theme/base/breakpoints";
+
+import NotificationSystem from "pages/HelpingHandPages/NotificationSystem";
+
+import hhlogo from "assets/images/hhlogo.png";
 
 function DefaultNavbar({ brand, routes, transparent, light, action, sticky, relative, center }) {
   const [dropdown, setDropdown] = useState("");
@@ -476,8 +480,9 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
             py={transparent ? 1.5 : 0.75}
             pl={relative || transparent ? 0 : { xs: 0, lg: 1 }}
           >
+            <MKBox component="img" src={brand.logo} alt="logo" width="30px" height="30px" mr={1} />
             <MKTypography variant="button" fontWeight="bold" color={light ? "white" : "dark"}>
-              {brand}
+              {brand.name}
             </MKTypography>
           </MKBox>
           <MKBox
@@ -487,6 +492,7 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
             mr={center ? "auto" : 0}
           >
             {renderNavbarItems}
+            <NotificationSystem />
           </MKBox>
           <MKBox ml={{ xs: "auto", lg: 0 }}>
             {action &&
@@ -551,7 +557,10 @@ function DefaultNavbar({ brand, routes, transparent, light, action, sticky, rela
 
 // Setting default values for the props of DefaultNavbar
 DefaultNavbar.defaultProps = {
-  brand: "Material Kit 2",
+  brand: {
+    name: "Helping Hands",
+    logo: hhlogo, // Add logo path here
+  },
   transparent: false,
   light: false,
   action: false,
