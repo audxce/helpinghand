@@ -46,6 +46,8 @@ import ContactUs from "layouts/pages/landing-pages/contact-us";
 import Login from "pages/HelpingHandPages/Login";
 import UserRegistration from "pages/HelpingHandPages/UserRegistration";
 import ProfileEdit from "layouts/pages/landing-pages/profile-edit";
+import VolunteerForms from "layouts/pages/landing-pages/volunteer-forms";
+import VolunteerHistory from "pages/LandingPages/VolunteerHistory";
 
 const routes = [
   {
@@ -86,6 +88,16 @@ const routes = [
             name: "profile",
             route: "/pages/landing-pages/profile-edit",
             component: <ProfileEdit />,
+          },
+          {
+            name: "VolunteerForms",
+            route: "/pages/landing-pages/volunteer-forms",
+            component: <VolunteerForms />,
+          },
+          {
+            name: "VolunteerHistory",
+            route: "/pages/landing-pages/volunteer-history",
+            component: <VolunteerHistory />,
           },
         ],
       },
