@@ -1,4 +1,4 @@
-/**
+/*
 =========================================================
 * Material Kit 2 React - v2.1.0
 =========================================================
@@ -13,17 +13,9 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import App from "App";
-import * as ReactDOMClient from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+// Material Kit 2 React pages
+import VolunteerHistory from "pages/LandingPages/VolunteerHistory";
 
-const container = document.getElementById("root");
-
-// Create a root.
-const root = ReactDOMClient.createRoot(container);
-
-root.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
-);
+export default function VolunteerHistoryPage() {
+  return <VolunteerHistory />;
+}
