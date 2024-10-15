@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 //multi-dropdown
-import React from "react";
 import Select from "react-select";
 
 //calender
@@ -16,11 +15,11 @@ import MenuItem from "@mui/material/MenuItem";
 
 // Material Kit 2 React components
 import MKBox from "components/MKBox";
-import MKInput from "components/MKInput";
 import MKButton from "components/MKButton";
+import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
 
-import bgImage from "assets/images/backgroundTest.jpg";
+import bgImage from "assets/images/hh-bg.jpg";
 
 function ProfileEdit() {
   const [dropdown, setDropdown] = useState(null);

@@ -104,7 +104,7 @@ function UserRegistration() {
                     Already have an account?{" "}
                     <MKTypography
                       component={Link}
-                      to="/Pages/HelpingHandPages/Login"
+                      to="/pages/LandingPages/Login"
                       variant="button"
                       color="info"
                       fontWeight="medium"

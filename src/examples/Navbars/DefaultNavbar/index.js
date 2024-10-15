@@ -43,7 +43,7 @@ import DefaultNavbarMobile from "examples/Navbars/DefaultNavbar/DefaultNavbarMob
 // Material Kit 2 React base styles
 import breakpoints from "assets/theme/base/breakpoints";
 
-import NotificationSystem from "pages/HelpingHandPages/NotificationSystem";
+import NotificationSystem from "pages/LandingPages/NotificationSystem";
 
 import hhlogo from "assets/images/hhlogo.png";
 
