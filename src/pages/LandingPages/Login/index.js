@@ -1,6 +1,7 @@
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import bgImage from "assets/images/hh-bg.jpg";
+import axios from "axios"; // Install axios if not already installed
 import MKBox from "components/MKBox";
 import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
@@ -12,10 +13,23 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  // Updated handleSubmit function with axios request
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Logging in with", { email, password });
+    console.log("Submitting...");
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/login", {
+        email,
+        password,
+      });
+
+      console.log(response.data.message);
+      // Handle successful login (e.g., redirect user, save token, etc.)
+    } catch (error) {
+      console.error(error.response?.data?.message || "Login error");
+      // Handle login error (e.g., show error message)
+    }
   };
 
   return (
@@ -76,7 +90,7 @@ function Login() {
                     Don&apos;t have an account?{" "}
                     <MKTypography
                       component={Link}
-                      to="/Pages/HelpingHandPages/UserRegistration"
+                      to="/pages/LandingPages/UserRegistration"
                       variant="button"
                       color="info"
                       fontWeight="medium"

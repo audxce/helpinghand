@@ -40,16 +40,16 @@ Coded by www.creative-tim.com
 import Icon from "@mui/material/Icon";
 
 // Pages
-import AboutUs from "layouts/pages/landing-pages/about-us";
-import ContactUs from "layouts/pages/landing-pages/contact-us";
+//import AboutUs from "layouts/pages/LandingPages/about-us";
+//import ContactUs from "layouts/pages/LandingPages/contact-us";
+//import Author from "layouts/pages/LandingPages/author";
 
-import Login from "pages/HelpingHandPages/Login";
-import UserRegistration from "pages/HelpingHandPages/UserRegistration";
-import ProfileEdit from "layouts/pages/landing-pages/profile-edit";
-import VolunteerForms from "layouts/pages/landing-pages/volunteer-forms";
-import VolunteerHistory from "pages/LandingPages/VolunteerHistory";
-import Author from "layouts/pages/landing-pages/author";
-import Event from "layouts/pages/landing-pages/event";
+import Event from "layouts/pages/LandingPages/event";
+import Login from "layouts/pages/LandingPages/login";
+import ProfileEdit from "layouts/pages/LandingPages/profile-edit";
+import UserRegistration from "layouts/pages/LandingPages/user-registration";
+import VolunteerForms from "layouts/pages/LandingPages/volunteer-forms";
+import VolunteerHistory from "layouts/pages/LandingPages/volunteer-history";
 
 const routes = [
   {
@@ -62,23 +62,8 @@ const routes = [
         name: "landing pages",
         collapse: [
           {
-            name: "about us",
-            route: "/pages/landing-pages/about-us",
-            component: <AboutUs />,
-          },
-          {
-            name: "contact us",
-            route: "/pages/landing-pages/contact-us",
-            component: <ContactUs />,
-          },
-          {
-            name: "author",
-            route: "/pages/landing-pages/author",
-            component: <Author />,
-          },
-          {
             name: "event",
-            route: "/pages/landing-pages/event",
+            route: "/pages/LandingPages/event",
             component: <Event />,
           },
         ],
@@ -88,27 +73,27 @@ const routes = [
         collapse: [
           {
             name: "Login",
-            route: "/pages/HelpingHandPages/Login",
+            route: "/pages/LandingPages/Login",
             component: <Login />,
           },
           {
             name: "User Registration",
-            route: "/pages/HelpingHandPages/UserRegistration",
+            route: "/pages/LandingPages/UserRegistration",
             component: <UserRegistration />,
           },
           {
             name: "profile",
-            route: "/pages/landing-pages/profile-edit",
+            route: "/pages/LandingPages/ProfileEdit",
             component: <ProfileEdit />,
           },
           {
             name: "VolunteerForms",
-            route: "/pages/landing-pages/volunteer-forms",
+            route: "/pages/LandingPages/VolunteerForms",
             component: <VolunteerForms />,
           },
           {
             name: "VolunteerHistory",
-            route: "/pages/landing-pages/volunteer-history",
+            route: "/pages/LandingPages/VolunteerHistory",
             component: <VolunteerHistory />,
           },
         ],
