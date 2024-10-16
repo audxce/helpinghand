@@ -15,6 +15,7 @@ const userRegistrationRoutes = require("./routes/user_registration");
 
 // Use routes
 app.use("/api/login", loginRoutes);
+app.use("/api/user_registration", userRegistrationRoutes);
 
 // Start server
 app.listen(PORT, () => {

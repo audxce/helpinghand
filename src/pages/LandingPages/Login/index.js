@@ -1,4 +1,5 @@
 import Card from "@mui/material/Card";
+import CircularProgress from "@mui/material/CircularProgress"; // For loading spinner
 import Grid from "@mui/material/Grid";
 import bgImage from "assets/images/hh-bg.jpg";
 import axios from "axios"; // Install axios if not already installed
@@ -12,11 +13,16 @@ import { Link } from "react-router-dom"; // Import Link from React Router
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); // For loading state
+  const [successMessage, setSuccessMessage] = useState(""); // For success message
+  const [errorMessage, setErrorMessage] = useState(""); // For error message
 
   // Updated handleSubmit function with axios request
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting...");
+    setLoading(true); // Set loading to true when request starts
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       const response = await axios.post("http://localhost:5000/api/login", {
@@ -25,10 +31,13 @@ function Login() {
       });
 
       console.log(response.data.message);
+      setSuccessMessage("Login successful! Redirecting...");
       // Handle successful login (e.g., redirect user, save token, etc.)
     } catch (error) {
       console.error(error.response?.data?.message || "Login error");
-      // Handle login error (e.g., show error message)
+      setErrorMessage(error.response?.data?.message || "Login error");
+    } finally {
+      setLoading(false); // Set loading to false after request completes
     }
   };
 
@@ -79,11 +88,34 @@ function Login() {
                   />
                 </MKBox>
 
+                {/* Loading spinner or Login button */}
                 <MKBox mt={3} mb={1}>
-                  <MKButton type="submit" variant="gradient" color="info" fullWidth>
-                    Login
-                  </MKButton>
+                  {loading ? (
+                    <MKButton fullWidth disabled>
+                      <CircularProgress size={24} color="inherit" />
+                    </MKButton>
+                  ) : (
+                    <MKButton type="submit" variant="gradient" color="info" fullWidth>
+                      Login
+                    </MKButton>
+                  )}
                 </MKBox>
+
+                {/* Success or Error messages */}
+                {successMessage && (
+                  <MKBox mt={2} textAlign="center">
+                    <MKTypography color="success" variant="body2">
+                      {successMessage}
+                    </MKTypography>
+                  </MKBox>
+                )}
+                {errorMessage && (
+                  <MKBox mt={2} textAlign="center">
+                    <MKTypography color="error" variant="body2">
+                      {errorMessage}
+                    </MKTypography>
+                  </MKBox>
+                )}
 
                 <MKBox mt={1} textAlign="center">
                   <MKTypography variant="button" color="secondary" fontWeight="small">

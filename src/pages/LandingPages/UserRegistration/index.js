@@ -1,6 +1,8 @@
 import Card from "@mui/material/Card";
+import CircularProgress from "@mui/material/CircularProgress"; // For loading spinner
 import Grid from "@mui/material/Grid";
 import bgImage from "assets/images/hh-bg.jpg";
+import axios from "axios"; // Import Axios for HTTP requests
 import MKBox from "components/MKBox";
 import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
@@ -13,9 +15,15 @@ function UserRegistration() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Clear previous messages
+    setError("");
+    setSuccessMessage("");
 
     // Basic validation to check if passwords match
     if (password !== confirmPassword) {
@@ -23,9 +31,29 @@ function UserRegistration() {
       return;
     }
 
-    // Proceed with the registration logic
-    console.log("Registering with", { email, password });
-    setError(""); // Clear error after submission if passwords match
+    try {
+      setLoading(true); // Start loading when request is made
+      const response = await axios.post("http://localhost:5000/api/user_registration", {
+        email,
+        password,
+        confirmPassword,
+      });
+
+      // Handle success
+      setSuccessMessage("Registration successful! Redirecting...");
+      console.log(response.data.message);
+
+      // You can redirect the user to another page after a successful registration, for example:
+      // setTimeout(() => {
+      //   window.location.href = "/pages/LandingPages/Login";
+      // }, 3000);
+    } catch (error) {
+      // Handle error
+      setError(error.response?.data?.message || "Registration error");
+      console.error(error.response?.data?.message || "Registration error");
+    } finally {
+      setLoading(false); // Stop loading after the request finishes
+    }
   };
 
   return (
@@ -85,6 +113,7 @@ function UserRegistration() {
                   />
                 </MKBox>
 
+                {/* Display error message */}
                 {error && (
                   <MKBox mb={2} textAlign="center">
                     <MKTypography variant="caption" color="error">
@@ -93,10 +122,26 @@ function UserRegistration() {
                   </MKBox>
                 )}
 
+                {/* Display success message */}
+                {successMessage && (
+                  <MKBox mb={2} textAlign="center">
+                    <MKTypography variant="caption" color="success">
+                      {successMessage}
+                    </MKTypography>
+                  </MKBox>
+                )}
+
+                {/* Register button or loading spinner */}
                 <MKBox mt={3} mb={1}>
-                  <MKButton type="submit" variant="gradient" color="info" fullWidth>
-                    Register
-                  </MKButton>
+                  {loading ? (
+                    <MKButton fullWidth disabled>
+                      <CircularProgress size={24} color="inherit" />
+                    </MKButton>
+                  ) : (
+                    <MKButton type="submit" variant="gradient" color="info" fullWidth>
+                      Register
+                    </MKButton>
+                  )}
                 </MKBox>
 
                 <MKBox mt={1} textAlign="center">
