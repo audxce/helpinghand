@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Kit 2 React - v2.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-kit-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 /** 
   All of the routes for the Material Kit 2 React are added here,
   You can add a new route, customize the routes and delete the routes here.
@@ -59,17 +44,7 @@ const routes = [
     rowsPerColumn: 2,
     collapse: [
       {
-        name: "landing pages",
-        collapse: [
-          {
-            name: "event",
-            route: "/pages/LandingPages/event",
-            component: <Event />,
-          },
-        ],
-      },
-      {
-        name: "account",
+        name: "Pages",
         collapse: [
           {
             name: "Login",
@@ -82,19 +57,24 @@ const routes = [
             component: <UserRegistration />,
           },
           {
-            name: "profile",
+            name: "Profile",
             route: "/pages/LandingPages/ProfileEdit",
             component: <ProfileEdit />,
           },
           {
-            name: "VolunteerForms",
+            name: "Volunteer Forms",
             route: "/pages/LandingPages/VolunteerForms",
             component: <VolunteerForms />,
           },
           {
-            name: "VolunteerHistory",
+            name: "Volunteer History",
             route: "/pages/LandingPages/VolunteerHistory",
             component: <VolunteerHistory />,
+          },
+          {
+            name: "Events",
+            route: "/pages/LandingPages/event",
+            component: <Event />,
           },
         ],
       },

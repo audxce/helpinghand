@@ -1,11 +1,6 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-
 const router = express.Router();
-
-// User data (replace with database later)
-const users = [{ email: "test@example.com", password: "password123" }];
+const users = require("./users"); // Import the shared users array
 
 // Login route
 router.post("/", (req, res) => {
