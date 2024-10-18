@@ -37,7 +37,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint ./src",
-    "prettify": "prettier --write ."
+    "prettify": "prettier --write .",
+    "test:jest": "jest --coverage"
   },
   "eslintConfig": {
     "extends": [
@@ -66,6 +67,9 @@
     "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-react": "7.32.2",
     "eslint-plugin-react-hooks": "4.6.0",
-    "prettier": "2.8.7"
+    "jest": "^29.7.0",
+    "jest-watch-typeahead": "^2.2.2",
+    "prettier": "2.8.7",
+    "supertest": "^7.0.0"
   }
 }
