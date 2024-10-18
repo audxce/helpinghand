@@ -1,8 +1,8 @@
 import Card from "@mui/material/Card";
-import CircularProgress from "@mui/material/CircularProgress"; // For loading spinner
+import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import bgImage from "assets/images/hh-bg.jpg";
-import axios from "axios"; // Import Axios for HTTP requests
+import axios from "axios";
 import MKBox from "components/MKBox";
 import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
@@ -16,7 +16,7 @@ function UserRegistration() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,10 +66,10 @@ function UserRegistration() {
       alignItems="center"
       justifyContent="center"
       sx={{
-        backgroundImage: `url(${bgImage})`, // Set the background image
-        backgroundSize: "cover", // Cover the entire area
-        backgroundPosition: "center", // Center the image
-        backgroundRepeat: "no-repeat", // Don't repeat the image
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
       <Grid container spacing={1} justifyContent="center" alignItems="center" height="100%">
