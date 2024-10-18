@@ -35,7 +35,7 @@ function VolunteerForms() {
         eventName,
       });
       console.log(response.data.message); // Log success or failure message
-      setMatchMessage("Successfully matched! Compatible skill, location, etc."); // Set success message
+      setMatchMessage(response.data.message); // Set message from response
       // Optionally, reset the form
       setVolunteerName("");
       setEventName("");
