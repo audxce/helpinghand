@@ -13,9 +13,12 @@ app.use(bodyParser.json());
 const loginRoutes = require("./routes/login");
 const userRegistrationRoutes = require("./routes/user_registration");
 
+const profileRoutes = require("./routes/profile")
+
 // Use routes
 app.use("/api/login", loginRoutes);
 app.use("/api/user_registration", userRegistrationRoutes);
+app.use("/api/profile", profileRoutes);
 
 // Start server
 app.listen(PORT, () => {
