@@ -23,6 +23,40 @@ router.post("/", (req, res) => {
   if (!fullName || !address || !city || !state || !zipCode || !skills || !availability) {
    return res.status(401).json({ message: "All fields are required" });
   }
+  if (fullName.length > 50 || address.length > 100 || addressTwo.length > 100 || city.length > 100 || state.length > 2 || zipCode.length > 9 || zipCode.length < 5) {
+    return res.status(401).json({ message: "Fields are an invalid length" });
+  }
+
+  if (skills && Array.isArray(skills)) {
+    for (const skill of skills) {
+      if (typeof skill !== 'string' || /[^a-zA-Z\s]/.test(skill)) {
+        return res.status(401).json({ message: "Skills cannot contain numbers or special characters" });
+      }
+    }
+  }
+  
+  if (/[^a-zA-Z\s]/.test(fullName)) {
+    return res.status(401).json({ message: "Names cannot legally contain numbers or special characters" });
+  }
+  if (/[^a-zA-Z\s]/.test(state)) {
+    return res.status(401).json({ message: "State code cannot contain numbers or special characters" });
+  }
+
+  if (availability && Array.isArray(availability)) {
+    
+    for (const date of availability) {
+      const dateParts = date.split(' - ');
+
+      for (const part of dateParts) {
+        const trimmedPart = part.trim();
+
+        if (!/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}$/.test(trimmedPart)) {
+          return res.status(401).json({ message: "Dates must be in valid format" });
+        }
+      }
+    }
+  }
+
   if (typeof zipCode !== 'string' || !/^\d{5}(-\d{4})?$/.test(zipCode)) {
     return res.status(401).json({ message: "Invalid zip code format" });
   }
