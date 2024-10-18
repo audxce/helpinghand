@@ -33,6 +33,7 @@ function ProfileEdit() {
   const [inputs, setInputs] = useState({
     fullName: { value: "", isSuccess: false, isFail: false },
     address: { value: "", isSuccess: false, isFail: false },
+    addressTwo: { value: "", isSuccess: false, isFail: false },
     city: { value: "", isSuccess: false, isFail: false },
     zipCode: { value: "", isSuccess: false, isFail: false },
   });
@@ -119,6 +120,7 @@ function ProfileEdit() {
     const dataToSend = {
       fullName: inputs.fullName.value,
       address: inputs.address.value,
+      addressTwo: inputs.addressTwo.value,
       city: inputs.city.value,
       state: selectedState,
       zipCode: inputs.zipCode.value,
@@ -126,7 +128,7 @@ function ProfileEdit() {
       preferences: preferences,
       availability: formattedAvailability,
     };
-    //console.log("Data:", dataToSend);
+    console.log("Data:", dataToSend);
     try {
       const response = await axios.post("http://localhost:5000/api/profile", dataToSend);
       console.log("Profile updated successfully:", response.data);
@@ -208,6 +210,7 @@ function ProfileEdit() {
                   variant="standard"
                   label="Address 2"
                   inputProps={{ maxLength: 100 }}
+                  onChange={handleChange("addressTwo")}
                   placeholder="eg. 4302 University Dr, Houston, TX 77004"
                   InputLabelProps={{ shrink: true }}
                   fullWidth

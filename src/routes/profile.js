@@ -11,6 +11,7 @@ router.post("/", (req, res) => {
   const {
     fullName,
     address,
+    addressTwo,
     city,
     state,
     zipCode,
@@ -19,7 +20,7 @@ router.post("/", (req, res) => {
     availability,
   } = req.body;
   
-  if (!fullName || !address || !city || !state || !zipCode || !skills || !preferences || !availability) {
+  if (!fullName || !address || !city || !state || !zipCode || !skills || !availability) {
    return res.status(401).json({ message: "All fields are required" });
   }
   if (typeof zipCode !== 'string' || !/^\d{5}(-\d{4})?$/.test(zipCode)) {
@@ -34,6 +35,7 @@ router.post("/", (req, res) => {
     profiles[existingProfileIndex] = {
       fullName,
       address,
+      addressTwo,
       city,
       state,
       zipCode,
@@ -46,6 +48,7 @@ router.post("/", (req, res) => {
     profiles.push({
       fullName,
       address,
+      addressTwo,
       city,
       state,
       zipCode,
