@@ -3,7 +3,8 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import { useState } from "react"; // Import useState
+import { useState } from "react";
+import axios from "axios"; // Import axios for making HTTP requests
 
 // Material Kit 2 React components
 import MKBox from "components/MKBox";
@@ -22,6 +23,25 @@ function VolunteerForms() {
     setEventName(event.target.value);
   };
 
+  // New handleSubmit function
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent default form submission
+
+    try {
+      // Send POST request to the backend
+      const response = await axios.post("http://localhost:5000/api/volunteer", {
+        volunteerName,
+        eventName,
+      });
+      console.log(response.data.message); // Log success message
+      // Optionally, reset the form
+      setVolunteerName("");
+      setEventName("");
+    } catch (error) {
+      console.error("Error matching volunteer:", error.response?.data?.message || error.message);
+    }
+  };
+
   return (
     <MKBox component="section" py={12}>
       <Container>
@@ -31,7 +51,7 @@ function VolunteerForms() {
           </MKTypography>
         </Grid>
         <Grid container item xs={12} lg={7} sx={{ mx: "auto" }}>
-          <MKBox width="100%" component="form" method="post" autoComplete="off">
+          <MKBox width="100%" component="form" onSubmit={handleSubmit} autoComplete="off"> {/* Update here */}
             <MKBox p={3}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>

@@ -12,10 +12,14 @@ app.use(bodyParser.json());
 // Import routes
 const loginRoutes = require("./routes/login");
 const userRegistrationRoutes = require("./routes/user_registration");
+const volunteerRoutes = require("./routes/volunteer");
+const volunteerHistoryRoutes = require("./routes/volunteerHistory"); // New route for volunteer history
 
 // Use routes
 app.use("/api/login", loginRoutes);
 app.use("/api/user_registration", userRegistrationRoutes);
+app.use("/api/volunteer", volunteerRoutes);
+app.use("/api/volunteerHistory", volunteerHistoryRoutes); // Use the new history route
 
 // Start server
 app.listen(PORT, () => {
