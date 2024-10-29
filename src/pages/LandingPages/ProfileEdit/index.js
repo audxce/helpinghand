@@ -21,10 +21,25 @@ import MKTypography from "components/MKTypography";
 
 import bgImage from "assets/images/hh-bg.jpg";
 
+import axios from "axios";
+
 function ProfileEdit() {
   const [dropdown, setDropdown] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
 
+  const [skills, setSkills] = useState([]);
+  const [preferences, setPreferences] = useState("");
+
+  const [inputs, setInputs] = useState({
+    fullName: { value: "", isSuccess: false, isFail: false },
+    address: { value: "", isSuccess: false, isFail: false },
+    addressTwo: { value: "", isSuccess: false, isFail: false },
+    city: { value: "", isSuccess: false, isFail: false },
+    zipCode: { value: "", isSuccess: false, isFail: false },
+  });
+
+  //cal
+  const [values, setValues] = useState([]);
   const openDropdown = ({ currentTarget }) => setDropdown(currentTarget);
   const closeDropdown = () => setDropdown(null);
 
@@ -33,8 +48,6 @@ function ProfileEdit() {
     closeDropdown();
   };
 
-  //cal
-  const [values, setValues] = useState([new Date()]);
   //multi-dropdown
   const options = [
     { value: "cooking", label: "Cooking" },
@@ -56,21 +69,93 @@ function ProfileEdit() {
 
   //const [fullName, setFullName] = useState('');
 
-  const [inputs, setInputs] = useState({
-    fullName: { value: "", isSuccess: false },
-    address: { value: "", isSuccess: false },
-    city: { value: "", isSuccess: false },
-    zipCode: { value: "", isSuccess: false },
-  });
-
   const handleChange = (field) => (event) => {
     const value = event.target.value;
-    const isSuccess = value.length > 0; // Customize your success condition
+    const isSuccess = value.length > 0;
+    const fail = false;
 
     setInputs((prev) => ({
       ...prev,
-      [field]: { value, isSuccess },
+      [field]: { value, isSuccess, fail },
     }));
+  };
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}/${month}/${day}`;
+  };
+
+  const formatDates = (dates) => {
+    if (!Array.isArray(dates) || dates.length === 0) {
+      return "";
+    }
+    const formattedDates = [];
+    for (const date of dates) {
+      let forDate = "";
+      if (date.length == 1) {
+        forDate += formatDate(new Date(date[0]));
+        formattedDates.push(forDate);
+        break;
+      }
+      for (let i = 0; i < date.length; i++) {
+        forDate += formatDate(new Date(date[i]));
+        if (i != date.length - 1) {
+          forDate += " - ";
+        }
+      }
+      formattedDates.push(forDate);
+    }
+
+    return formattedDates;
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    //console.log("test:", values);
+    const formattedAvailability = formatDates(values);
+
+    const dataToSend = {
+      fullName: inputs.fullName.value,
+      address: inputs.address.value,
+      addressTwo: inputs.addressTwo.value,
+      city: inputs.city.value,
+      state: selectedState,
+      zipCode: inputs.zipCode.value,
+      skills: skills.map((skill) => skill.value),
+      preferences: preferences,
+      availability: formattedAvailability,
+    };
+    console.log("Data:", dataToSend);
+    try {
+      const response = await axios.post("http://localhost:5000/api/profile", dataToSend);
+      console.log("Profile updated successfully:", response.data);
+    } catch (error) {
+      console.error("Error updating profile:", error.response?.data?.message);
+
+      if (error.response?.data?.message == "Invalid zip code format") {
+        setInputs((prev) => ({
+          ...prev,
+          zipCode: { ...prev.zipCode, isSuccess: false, isFail: true },
+        }));
+      }
+      if (error.response?.data?.message == "All fields are required") {
+        for (const key in inputs) {
+          if (!inputs[key].value) {
+            setInputs((prev) => ({
+              ...prev,
+              [key]: {
+                ...prev[key],
+                isSuccess: false,
+                isFail: true,
+              },
+            }));
+          }
+        }
+      }
+    }
   };
 
   return (
@@ -83,7 +168,7 @@ function ProfileEdit() {
       justifyContent="center"
       mt={{ xs: 20, sm: 18, md: 20 }}
       mb={{ xs: 20, sm: 18, md: 20 }}
-      mx={80}
+      mx={70}
     >
       <MKBox component="section" py={5}>
         <Container>
@@ -96,6 +181,7 @@ function ProfileEdit() {
               fullWidth
               inputProps={{ maxLength: 50 }}
               onChange={handleChange("fullName")}
+              error={inputs.fullName.isFail}
               success={inputs.fullName.isSuccess}
             />
           </Grid>
@@ -112,6 +198,7 @@ function ProfileEdit() {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleChange("address")}
+                error={inputs.address.isFail}
                 success={inputs.address.isSuccess}
               />
             </Grid>
@@ -123,6 +210,7 @@ function ProfileEdit() {
                   variant="standard"
                   label="Address 2"
                   inputProps={{ maxLength: 100 }}
+                  onChange={handleChange("addressTwo")}
                   placeholder="eg. 4302 University Dr, Houston, TX 77004"
                   InputLabelProps={{ shrink: true }}
                   fullWidth
@@ -138,6 +226,7 @@ function ProfileEdit() {
                     inputProps={{ maxLength: 100 }}
                     onChange={handleChange("city")}
                     success={inputs.city.isSuccess}
+                    error={inputs.city.isFail}
                     placeholder="eg. Houston"
                     InputLabelProps={{ shrink: true }}
                     fullWidth
@@ -223,6 +312,7 @@ function ProfileEdit() {
                             e.target.value = e.target.value.slice(0, 9);
                           }
                         }}
+                        error={inputs.zipCode.isFail}
                         success={inputs.zipCode.isSuccess}
                       />
                     </Grid>
@@ -242,6 +332,7 @@ function ProfileEdit() {
                           options={options}
                           className="basic-multi-select"
                           classNamePrefix="select"
+                          onChange={setSkills}
                         />
                       </Grid>
                     </Container>
@@ -255,6 +346,7 @@ function ProfileEdit() {
                             multiline
                             InputLabelProps={{ shrink: true }}
                             fullWidth
+                            onChange={(event) => setPreferences(event.target.value)}
                             rows={6}
                           />
                         </Grid>
@@ -267,7 +359,7 @@ function ProfileEdit() {
                                 Availability*
                               </MKTypography>
                             </Grid>
-                            <DatePicker value={values} onChange={setValues} multiple range />
+                            <DatePicker onChange={setValues} multiple range format="MM/DD/YYYY" />
                           </Grid>
                         </Container>
                         <MKBox
@@ -287,7 +379,7 @@ function ProfileEdit() {
                         <MKBox component="section" py={3}>
                           <Container>
                             <Grid container item xs={12} lg={2.7} py={1} mx="auto">
-                              <MKButton variant="gradient" color="success">
+                              <MKButton variant="gradient" color="success" onClick={handleSubmit}>
                                 Save Changes
                               </MKButton>
                             </Grid>
