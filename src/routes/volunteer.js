@@ -29,9 +29,13 @@ router.post("/", (req, res) => {
   // Check if both exist and if they match based on skill and location
   if (volunteer && event) {
     if (volunteer.skill === event.skill && volunteer.location === event.location) {
-      return res.status(200).json({ message: "Successfully matched! Compatible skill, location, etc." });
+      return res
+        .status(200)
+        .json({ message: "Successfully matched! Compatible skill, location, etc." });
     } else {
-      return res.status(200).json({ message: "Volunteer and event do not match. Incompatible skill, location, etc." });
+      return res
+        .status(200)
+        .json({ message: "Volunteer and event do not match. Incompatible skill, location, etc." });
     }
   } else {
     return res.status(404).json({ message: "Volunteer or event not found." });

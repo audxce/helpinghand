@@ -7,7 +7,6 @@ app.use(express.json());
 app.use("/api/volunteer", volunteerMatchingRouter);
 
 describe("POST /api/volunteer", () => {
-
   it("should successfully match a volunteer with an event", async () => {
     const matchData = {
       volunteerName: "Volunteer 1",
@@ -46,8 +45,8 @@ describe("POST /api/volunteer", () => {
 
     const response = await request(app).post("/api/volunteer").send(mismatchData);
     expect(response.statusCode).toBe(200);
-    expect(response.body.message).toBe("Volunteer and event do not match. Incompatible skill, location, etc.");
+    expect(response.body.message).toBe(
+      "Volunteer and event do not match. Incompatible skill, location, etc."
+    );
   });
-
-
 });

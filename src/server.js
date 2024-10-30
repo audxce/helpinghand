@@ -15,9 +15,8 @@ const userRegistrationRoutes = require("./routes/user_registration");
 const notificationRoutes = require("./routes/notifications");
 const volunteerRoutes = require("./routes/volunteer");
 const volunteerHistoryRoutes = require("./routes/volunteerHistory"); // New route for volunteer history
-const profileRoutes = require("./routes/profile")
-const eventRoutes = require("./routes/event")
-
+const profileRoutes = require("./routes/profile");
+const eventRoutes = require("./routes/event");
 
 // Use routes
 app.use("/api/login", loginRoutes);
