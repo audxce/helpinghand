@@ -15,6 +15,7 @@ const userRegistrationRoutes = require("./routes/user_registration");
 const volunteerRoutes = require("./routes/volunteer");
 const volunteerHistoryRoutes = require("./routes/volunteerHistory"); // New route for volunteer history
 const profileRoutes = require("./routes/profile")
+const eventRoutes = require("./routes/event")
 
 
 // Use routes
@@ -23,6 +24,7 @@ app.use("/api/user_registration", userRegistrationRoutes);
 app.use("/api/volunteer", volunteerRoutes);
 app.use("/api/volunteerHistory", volunteerHistoryRoutes); // Use the new history route
 app.use("/api/profile", profileRoutes);
+app.use("/api/event", eventRoutes);
 
 // Start server
 app.listen(PORT, () => {

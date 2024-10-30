@@ -39,6 +39,7 @@
     "lint": "eslint ./src",
     "prettify": "prettier --write .",
     "test:jest": "jest --coverage"
+
   },
   "eslintConfig": {
     "extends": [
