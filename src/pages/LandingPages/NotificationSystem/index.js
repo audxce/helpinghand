@@ -5,42 +5,27 @@ import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Modal from "@mui/material/Modal";
-import axios from "axios";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function NotificationSystem() {
-  // Notifications state
-  const [notifications, setNotifications] = useState([]);
+  // Sample notifications
+  const [notifications, setNotifications] = useState([
+    { id: 1, message: "New event assignment", read: false },
+    { id: 2, message: "Reminder: Meeting at 3 PM", read: false },
+    { id: 3, message: "Update: Event postponed", read: true }, // Read notification
+  ]);
+
+  // To handle opening the notification modal
   const [open, setOpen] = useState(false);
-
-  // Fetch notifications from the backend on component mount
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/notifications");
-        setNotifications(response.data);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-      }
-    };
-
-    fetchNotifications(); // Fetch notifications on mount
-  }, []); // Empty dependency array ensures it runs once on mount
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  // Mark all notifications as read
-  const markAllAsRead = async () => {
-    try {
-      await axios.put("http://localhost:5000/api/notifications/mark-all-read");
-      setNotifications((prevNotifications) => prevNotifications.map((n) => ({ ...n, read: true })));
-    } catch (error) {
-      console.error("Error marking notifications as read:", error);
-    }
-
+  // Mark notifications as read
+  const markAllAsRead = () => {
+    setNotifications((prevNotifications) => prevNotifications.map((n) => ({ ...n, read: true })));
     handleClose();
   };
 
@@ -81,7 +66,7 @@ function NotificationSystem() {
         BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 500,
-          sx: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
+          sx: { backgroundColor: "rgba(0, 0, 0, 0.5)" }, // Darkened background
         }}
       >
         <Box sx={modalStyle}>
@@ -94,7 +79,7 @@ function NotificationSystem() {
                 <MKTypography variant="button" fontWeight={notification.read ? "regular" : "bold"}>
                   {notification.message}
                 </MKTypography>
-                {/* Adds a divider between notifications */}
+                {/* Add a divider between notifications */}
                 {index < notifications.length - 1 && <Divider sx={{ my: 2 }} />}
               </div>
             ))

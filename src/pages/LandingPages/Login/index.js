@@ -2,20 +2,20 @@ import Card from "@mui/material/Card";
 import CircularProgress from "@mui/material/CircularProgress"; // For loading spinner
 import Grid from "@mui/material/Grid";
 import bgImage from "assets/images/hh-bg.jpg";
-import axios from "axios";
+import axios from "axios"; // Install axios if not already installed
 import MKBox from "components/MKBox";
 import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; // Import Link from React Router
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false); // For loading state
+  const [successMessage, setSuccessMessage] = useState(""); // For success message
+  const [errorMessage, setErrorMessage] = useState(""); // For error message
 
   // Updated handleSubmit function with axios request
   const handleSubmit = async (e) => {
@@ -32,7 +32,7 @@ function Login() {
 
       console.log(response.data.message);
       setSuccessMessage("Login successful! Redirecting...");
-      // Handle successful login (redirect user, save token, etc.)
+      // Handle successful login (e.g., redirect user, save token, etc.)
     } catch (error) {
       console.error(error.response?.data?.message || "Login error");
       setErrorMessage(error.response?.data?.message || "Login error");
@@ -51,10 +51,10 @@ function Login() {
       alignItems="center"
       justifyContent="center"
       sx={{
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
+        backgroundImage: `url(${bgImage})`, // Set the background image
+        backgroundSize: "cover", // Cover the entire area
+        backgroundPosition: "center", // Center the image
+        backgroundRepeat: "no-repeat", // Don't repeat the image
       }}
     >
       <Grid container spacing={1} justifyContent="center" alignItems="center" height="100%">
