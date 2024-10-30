@@ -19,7 +19,7 @@ describe('Profile Edit', () => {
         zipCode: '12345',
         skills: ['gardening', 'cooking'],
         preferences: 'Remote',
-        availability: ['2024/10/27']
+        availability: ['2024/10/27 - 2025/2/4']
       });
     expect(res.statusCode).toEqual(201);
     expect(res.body.message).toBe('Profile Created!');
@@ -37,7 +37,7 @@ describe('Profile Edit', () => {
     const res = await request(app)
       .post('/api/profile')
       .send({
-        fullName: 'Alexander Maximilian Theodore MontgomerySmithSmithSmith',
+        fullName: 'AlexanderMaximilianTheodoreMontgomerySmithSmithSmith',
         address: '123 Main St',
         addressTwo: '123 not Main St',
         city: 'Anytown',
@@ -49,6 +49,24 @@ describe('Profile Edit', () => {
       });
     expect(res.statusCode).toEqual(401);
     expect(res.body.message).toBe('Fields are an invalid length');
+  });
+
+  it('should return an error for invalid field type', async () => {
+    const res = await request(app)
+      .post('/api/profile')
+      .send({
+        fullName: 7,
+        address: '123 Main St',
+        addressTwo: '123 not Main St',
+        city: 'Anytown',
+        state: 'CA',
+        zipCode: '123456',
+        skills: ['gardening', 'cooking'],
+        preferences: 'Remote',
+        availability: ['2024/10/27']
+      });
+    expect(res.statusCode).toEqual(401);
+    expect(res.body.message).toBe('Fields must be a string');
   });
 
   it('should return an error for invalid zipcode', async () => {
@@ -91,7 +109,7 @@ describe('Profile Edit', () => {
     const res = await request(app)
       .post('/api/profile')
       .send({
-        fullName: 'First@ Last2',
+        fullName: 'First@# Last2',
         address: '123 Main St',
         addressTwo: '123 not Main St',
         city: 'Anytown',
@@ -135,7 +153,7 @@ describe('Profile Edit', () => {
         zipCode: '12345',
         skills: ['gardening', 'cooking'],
         preferences: 'Remote',
-        availability: ['202V#$/10/27']
+        availability: ['202@/10s/2$']
       });
     expect(res.statusCode).toEqual(401);
     expect(res.body.message).toBe('Dates must be in valid format');

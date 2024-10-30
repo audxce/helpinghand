@@ -1,7 +1,7 @@
 // @mui material components
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -12,6 +12,7 @@ import {
   Paper,
   TextField,
 } from "@mui/material";
+import axios from "axios"; // Import axios for making HTTP requests
 
 // Material Kit 2 React components
 import MKBox from "components/MKBox";
@@ -19,35 +20,11 @@ import MKTypography from "components/MKTypography";
 
 const VolunteerHistory = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [volunteerData, setVolunteerData] = useState([]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
-
-  const volunteerData = [
-    {
-      name: "Volunteer 1",
-      event: "temp",
-      date: "2024",
-      status: "temp",
-      duration: 1,
-      location: "temp",
-      skills: "temp",
-      urgency: "temp",
-      description: "temp",
-    },
-    {
-      name: "Volunteer 2",
-      event: "temp",
-      date: "2024",
-      status: "temp",
-      duration: 1,
-      location: "temp",
-      skills: "temp",
-      urgency: "temp",
-      description: "temp",
-    },
-  ];
 
   const MAX_NAME_LENGTH = 50;
   const MAX_EVENT_LENGTH = 100;
@@ -68,6 +45,24 @@ const VolunteerHistory = () => {
       row.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  useEffect(() => {
+    const fetchVolunteerHistory = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/volunteerHistory");
+        setVolunteerData(response.data);
+      } catch (error) {
+        console.error("Error fetching volunteer history:", error);
+      }
+    };
+
+    fetchVolunteerHistory();
+  }, []);
+
+  const handleSubmit = (event) => {
+    event.preventDefault(); // Prevent default form submission
+    // You can add any additional logic for form submission if needed
+  };
+
   return (
     <MKBox component="section" py={12}>
       <Container>
@@ -78,7 +73,7 @@ const VolunteerHistory = () => {
         </Grid>
 
         <Grid container item xs={12} lg={7} sx={{ mx: "auto" }}>
-          <MKBox width="100%" component="form" method="post" autoComplete="off">
+          <MKBox width="100%" component="form" autoComplete="off" onSubmit={handleSubmit}>
             <MKBox p={3}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>

@@ -23,6 +23,14 @@ router.post("/", (req, res) => {
   if (!fullName || !address || !city || !state || !zipCode || !skills || !availability) {
    return res.status(401).json({ message: "All fields are required" });
   }
+
+  const stringFields = [fullName, address, addressTwo, city, state, zipCode, preferences];
+  for (const field of stringFields) {
+    if (typeof field !== 'string') {
+      return res.status(401).json({ message: "Fields must be a string" });
+    }
+  }
+
   if (fullName.length > 50 || address.length > 100 || addressTwo.length > 100 || city.length > 100 || state.length > 2 || zipCode.length > 9 || zipCode.length < 5) {
     return res.status(401).json({ message: "Fields are an invalid length" });
   }
