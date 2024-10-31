@@ -17,6 +17,8 @@
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "flatpickr": "4.6.13",
+    "fs": "^0.0.1-security",
+    "mysql": "^2.18.1",
     "prop-types": "15.8.1",
     "react": "18.2.0",
     "react-copy-to-clipboard": "5.1.0",
