@@ -18,7 +18,11 @@ const volunteerHistoryRoutes = require("./routes/volunteerHistory"); // New rout
 const profileRoutes = require("./routes/profile");
 const eventRoutes = require("./routes/event");
 
+const profileRoute = require('./routes/profileRoutes');
+
 // Use routes
+app.use('/api/profileData', profileRoute);
+
 app.use("/api/login", loginRoutes);
 app.use("/api/user_registration", userRegistrationRoutes);
 app.use("/api/notifications", notificationRoutes);
