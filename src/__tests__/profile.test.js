@@ -1,13 +1,26 @@
 const request = require("supertest"); //npm install --save-dev jest supertest
 const express = require("express");
 const profileRoutes = require("../routes/profile");
+const db = require('../db')
+
+jest.mock("../db", () => ({
+  query: jest.fn((query, params, callback) => {
+    if (query.startsWith("SELECT")) {
+      callback(null, []); 
+    } else if (query.startsWith("INSERT") || query.startsWith("UPDATE")) {
+      callback(null); 
+    } else {
+      callback(new Error("Unknown query"));
+    }
+  }),
+}));
 
 const app = express();
 app.use(express.json());
 app.use("/api/profile", profileRoutes);
 
 describe("Profile Edit", () => {
-  it("should create a new profile", async () => {
+  it("Should create a profile", async () => {
     const res = await request(app)
       .post("/api/profile")
       .send({
@@ -23,6 +36,30 @@ describe("Profile Edit", () => {
       });
     expect(res.statusCode).toEqual(201);
     expect(res.body.message).toBe("Profile Created!");
+  });
+
+  it("should return a database error", async () => {
+    const fullName = "First Last";
+    db.query.mockImplementationOnce((query, params, callback) => {
+      callback(new Error("Database error"), null);
+    });
+
+    const res = await request(app)
+      .post("/api/profile")
+      .send({
+        fullName,
+        address: "123 Main St",
+        addressTwo: "123 not Main St",
+        city: "Anytown",
+        state: "CA",
+        zipCode: "12345",
+        skills: ["gardening", "cooking"],
+        preferences: "Remote",
+        availability: ["2024/10/27"],
+      });
+
+    expect(res.statusCode).toEqual(500);
+    expect(res.body.message).toBe("Database error");
   });
 
   it("should return an error for missing fields", async () => {
