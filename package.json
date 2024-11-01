@@ -19,6 +19,7 @@
     "flatpickr": "4.6.13",
     "fs": "^0.0.1-security",
     "mysql": "^2.18.1",
+    "opn": "^5.5.0",
     "prop-types": "15.8.1",
     "react": "18.2.0",
     "react-copy-to-clipboard": "5.1.0",
