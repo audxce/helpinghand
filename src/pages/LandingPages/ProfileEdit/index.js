@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 //multi-dropdown
 import Select from "react-select";
@@ -111,6 +111,29 @@ function ProfileEdit() {
     return formattedDates;
   };
 
+  useEffect(() => {
+    const userId = 1;
+    axios
+      .get(`http://localhost:5000/api/profileData/profile/${userId}`)
+      .then((response) => {
+        const userData = response.data;
+        setInputs({
+          fullName: { value: userData.fullName, isSuccess: true, isFail: false },
+          address: { value: userData.address, isSuccess: true, isFail: false },
+          addressTwo: { value: userData.addressTwo || "", isSuccess: true, isFail: false },
+          city: { value: userData.city, isSuccess: true, isFail: false },
+          zipCode: { value: userData.zipCode, isSuccess: true, isFail: false },
+        });
+        setSelectedState(userData.state);
+        setSkills(userData.skills.map((skill) => ({ value: skill, label: skill })));
+        setPreferences(userData.preferences);
+        setValues(userData.availability || []);
+      })
+      .catch((error) => {
+        console.error("Error fetching profile data:", error);
+      });
+  }, []);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -183,6 +206,7 @@ function ProfileEdit() {
               onChange={handleChange("fullName")}
               error={inputs.fullName.isFail}
               success={inputs.fullName.isSuccess}
+              value={inputs.fullName.value}
             />
           </Grid>
         </Container>
@@ -200,6 +224,7 @@ function ProfileEdit() {
                 onChange={handleChange("address")}
                 error={inputs.address.isFail}
                 success={inputs.address.isSuccess}
+                value={inputs.address.value}
               />
             </Grid>
           </Container>
@@ -214,6 +239,7 @@ function ProfileEdit() {
                   placeholder="eg. 4302 University Dr, Houston, TX 77004"
                   InputLabelProps={{ shrink: true }}
                   fullWidth
+                  value={inputs.addressTwo.value}
                 />
               </Grid>
             </Container>
@@ -230,6 +256,7 @@ function ProfileEdit() {
                     placeholder="eg. Houston"
                     InputLabelProps={{ shrink: true }}
                     fullWidth
+                    value={inputs.city.value}
                   />
                 </Grid>
               </Container>
@@ -314,6 +341,7 @@ function ProfileEdit() {
                         }}
                         error={inputs.zipCode.isFail}
                         success={inputs.zipCode.isSuccess}
+                        value={inputs.zipCode.value}
                       />
                     </Grid>
                   </Container>
@@ -333,6 +361,7 @@ function ProfileEdit() {
                           className="basic-multi-select"
                           classNamePrefix="select"
                           onChange={setSkills}
+                          value={skills}
                         />
                       </Grid>
                     </Container>
@@ -348,6 +377,7 @@ function ProfileEdit() {
                             fullWidth
                             onChange={(event) => setPreferences(event.target.value)}
                             rows={6}
+                            value={preferences}
                           />
                         </Grid>
                       </Container>
@@ -359,7 +389,13 @@ function ProfileEdit() {
                                 Availability*
                               </MKTypography>
                             </Grid>
-                            <DatePicker onChange={setValues} multiple range format="MM/DD/YYYY" />
+                            <DatePicker
+                              onChange={setValues}
+                              multiple
+                              range
+                              format="MM/DD/YYYY"
+                              value={values}
+                            />
                           </Grid>
                         </Container>
                         <MKBox

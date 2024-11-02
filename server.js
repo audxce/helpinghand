@@ -52,7 +52,10 @@ const volunteerHistoryRoutes = require("./src/routes/volunteerHistory");
 const profileRoutes = require("./src/routes/profile");
 const eventRoutes = require("./src/routes/event");
 
+const profileRoute = require('./src/routes/profileRoutes');
+
 // Use API routes
+app.use('/api/profileData', profileRoute);
 app.use("/api/login", loginRoutes);
 app.use("/api/user_registration", userRegistrationRoutes);
 app.use("/api/notifications", notificationRoutes);

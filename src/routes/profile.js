@@ -1,14 +1,14 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
+
+const db = require('../db')
 
 const router = express.Router();
-
-const profiles = [];
 
 router.post("/", (req, res) => {
   const { fullName, address, addressTwo, city, state, zipCode, skills, preferences, availability } =
     req.body;
+
+  //validate requests
 
   if (!fullName || !address || !city || !state || !zipCode || !skills || !availability) {
     return res.status(401).json({ message: "All fields are required" });
@@ -72,35 +72,45 @@ router.post("/", (req, res) => {
     return res.status(401).json({ message: "Invalid zip code format" });
   }
 
-  const existingProfileIndex = profiles.findIndex((profile) => profile.fullName === fullName);
+  //Adding to database
+  const checkProfileQuery = "SELECT * FROM UserProfile WHERE full_name = ?";
+  db.query(checkProfileQuery, [fullName], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err });
+    }
 
-  if (existingProfileIndex > -1) {
-    profiles[existingProfileIndex] = {
-      fullName,
+    const profileData = {
+      full_name: fullName,
       address,
-      addressTwo,
+      address_two: addressTwo,
       city,
       state,
-      zipCode,
-      skills,
-      preferences,
-      availability,
+      zipcode: zipCode,
+      skills: JSON.stringify(skills),
+      preferences: JSON.stringify(preferences),
+      availability: JSON.stringify(availability),
     };
-    res.status(200).json({ message: "Profile Created!" });
-  } else {
-    profiles.push({
-      fullName,
-      address,
-      addressTwo,
-      city,
-      state,
-      zipCode,
-      skills,
-      preferences,
-      availability,
-    });
-    res.status(201).json({ message: "Profile Created!" });
-  }
+
+    if (results.length > 0) {
+      const updateProfileQuery = `UPDATE UserProfile SET ? WHERE full_name = ?`;
+      db.query(updateProfileQuery, [profileData, fullName], (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Error updating profile", error: err });
+        }
+        res.status(200).json({ message: "Profile Updated!" });
+      });
+    } else {
+
+      const insertProfileQuery = "INSERT INTO UserProfile SET ?";
+      db.query(insertProfileQuery, profileData, (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Error creating profile", error: err });
+        }
+        console.log(profileData)
+        res.status(201).json({ message: "Profile Created!" });
+      });
+    }
+  });
 });
 
 module.exports = router;
