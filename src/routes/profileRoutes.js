@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");
+const db = require("../../db");
 
 function isValidJson(str) {
     try {
@@ -12,6 +12,7 @@ function isValidJson(str) {
   }
 
 router.get("/profile/:userId", (req, res) => {
+  
   const { userId } = req.params;  
   const query = "SELECT * FROM UserProfile WHERE user_id = ?";
 

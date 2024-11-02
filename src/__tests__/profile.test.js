@@ -1,7 +1,7 @@
 const request = require("supertest"); //npm install --save-dev jest supertest
 const express = require("express");
 const profileRoutes = require("../routes/profile");
-const db = require('../db')
+const db = require("../../db");
 
 jest.mock("../db", () => ({
   query: jest.fn((query, params, callback) => {

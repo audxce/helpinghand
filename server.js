@@ -3,38 +3,10 @@ const cors = require("cors");
 const express = require("express");
 const path = require("path");
 const open = require('open');
-const fs = require('fs');
-const mysql = require('mysql');
 require('dotenv').config({ path: './db.env' });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Database connection setup
-const dbConfig = process.env.NODE_ENV === 'production'
-  ? JSON.parse(process.env.MySQL_Database)
-  : {
-    host: "helpinghands-db.mysql.database.azure.com",
-    user: "supportingFingers32",
-    password: "HkadL@d127",
-    database: "UserDatabase",
-    port: 3306,
-    ssl: {
-      ca: fs.readFileSync(`${__dirname}/DigiCertGlobalRootCA.crt.pem`),
-      rejectUnauthorized: true,
-    }
-  };
-
-// Create MySQL connection
-const conn = mysql.createConnection(dbConfig);
-
-conn.connect((err) => {
-  if (err) {
-    console.error("Database connection failed:", err.stack);
-    return;
-  }
-  console.log("Connected to MySQL database.");
-});
 
 // Middleware
 app.use(cors());
@@ -77,4 +49,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-module.exports = conn;

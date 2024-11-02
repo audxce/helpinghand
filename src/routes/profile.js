@@ -1,10 +1,10 @@
 const express = require("express");
 
-const db = require('../db')
-
 const router = express.Router();
+const db = require("../../db");
 
 router.post("/", (req, res) => {
+
   const { fullName, address, addressTwo, city, state, zipCode, skills, preferences, availability } =
     req.body;
 
@@ -100,10 +100,10 @@ router.post("/", (req, res) => {
         res.status(200).json({ message: "Profile Updated!" });
       });
     } else {
-
       const insertProfileQuery = "INSERT INTO UserProfile SET ?";
       db.query(insertProfileQuery, profileData, (err) => {
         if (err) {
+          console.error("Database Insert Error:", err);
           return res.status(500).json({ message: "Error creating profile", error: err });
         }
         console.log(profileData)
