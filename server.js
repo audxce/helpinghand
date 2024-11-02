@@ -10,15 +10,15 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Import routes
-const loginRoutes = require("./routes/login");
-const userRegistrationRoutes = require("./routes/user_registration");
-const notificationRoutes = require("./routes/notifications");
-const volunteerRoutes = require("./routes/volunteer");
-const volunteerHistoryRoutes = require("./routes/volunteerHistory"); // New route for volunteer history
-const profileRoutes = require("./routes/profile");
-const eventRoutes = require("./routes/event");
+const loginRoutes = require("./src/routes/login");
+const userRegistrationRoutes = require("./src/routes/user_registration");
+const notificationRoutes = require("./src/routes/notifications");
+const volunteerRoutes = require("./src/routes/volunteer");
+const volunteerHistoryRoutes = require("./src/routes/volunteerHistory"); // New route for volunteer history
+const profileRoutes = require("./src/routes/profile");
+const eventRoutes = require("./src/routes/event");
 
-const profileRoute = require('./routes/profileRoutes');
+const profileRoute = require('./src/routes/profileRoutes');
 
 // Use routes
 app.use('/api/profileData', profileRoute);
