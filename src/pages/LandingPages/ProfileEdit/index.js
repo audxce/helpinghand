@@ -112,7 +112,7 @@ function ProfileEdit() {
   };
 
   useEffect(() => {
-    const userId = 9;
+    const userId = 1;
     axios
       .get(`http://localhost:5000/api/profileData/profile/${userId}`)
       .then((response) => {
