@@ -11,9 +11,19 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 function UserRegistration() {
+  // Define all necessary state variables
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [address, setAddress] = useState("");
+  const [addressTwo, setAddressTwo] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zipcode, setZipcode] = useState("");
+  const [skills, setSkills] = useState("");
+  const [availability, setAvailability] = useState("");
+  const [preferences, setPreferences] = useState("");
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,16 +47,20 @@ function UserRegistration() {
         email,
         password,
         confirmPassword,
+        fullName,
+        address,
+        addressTwo,
+        city,
+        state,
+        zipcode,
+        skills,
+        availability,
+        preferences,
       });
 
       // Handle success
       setSuccessMessage("Registration successful! Redirecting...");
       console.log(response.data.message);
-
-      // You can redirect the user to another page after a successful registration, for example:
-      // setTimeout(() => {
-      //   window.location.href = "/pages/LandingPages/Login";
-      // }, 3000);
     } catch (error) {
       // Handle error
       setError(error.response?.data?.message || "Registration error");
@@ -73,7 +87,7 @@ function UserRegistration() {
       }}
     >
       <Grid container spacing={1} justifyContent="center" alignItems="center" height="100%">
-        <Grid item xs={11} sm={9} md={5} lg={4} xl={3}>
+        <Grid item xs={11} sm={9} md={5} lg={6} xl={5}>
           <Card>
             <MKBox p={3} textAlign="center">
               <MKTypography variant="h4" fontWeight="medium" color="dark" mt={1}>
@@ -83,39 +97,128 @@ function UserRegistration() {
 
             <MKBox pt={2} pb={3} px={3}>
               <MKBox component="form" role="form" onSubmit={handleSubmit}>
-                <MKBox mb={2}>
-                  <MKInput
-                    type="email"
-                    label="Email"
-                    fullWidth
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </MKBox>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <MKInput
+                      type="email"
+                      label="Email"
+                      fullWidth
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </Grid>
 
-                <MKBox mb={2}>
-                  <MKInput
-                    type="password"
-                    label="Password"
-                    fullWidth
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </MKBox>
+                  <Grid item xs={6}>
+                    <MKInput
+                      type="password"
+                      label="Password"
+                      fullWidth
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <MKInput
+                      type="password"
+                      label="Confirm Password"
+                      fullWidth
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </Grid>
 
-                <MKBox mb={2}>
-                  <MKInput
-                    type="password"
-                    label="Confirm Password"
-                    fullWidth
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                </MKBox>
+                  <Grid item xs={12}>
+                    <MKInput
+                      type="text"
+                      label="Full Name"
+                      fullWidth
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <MKInput
+                      type="text"
+                      label="Address"
+                      fullWidth
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <MKInput
+                      type="text"
+                      label="Address Line 2"
+                      fullWidth
+                      value={addressTwo}
+                      onChange={(e) => setAddressTwo(e.target.value)}
+                    />
+                  </Grid>
+
+                  <Grid item xs={6}>
+                    <MKInput
+                      type="text"
+                      label="City"
+                      fullWidth
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <MKInput
+                      type="text"
+                      label="State"
+                      fullWidth
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <MKInput
+                      type="text"
+                      label="Zipcode"
+                      fullWidth
+                      value={zipcode}
+                      onChange={(e) => setZipcode(e.target.value)}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <MKInput
+                      type="text"
+                      label="Skills"
+                      fullWidth
+                      value={skills}
+                      onChange={(e) => setSkills(e.target.value)}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <MKInput
+                      type="text"
+                      label="Availability"
+                      fullWidth
+                      value={availability}
+                      onChange={(e) => setAvailability(e.target.value)}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <MKInput
+                      type="text"
+                      label="Preferences"
+                      fullWidth
+                      value={preferences}
+                      onChange={(e) => setPreferences(e.target.value)}
+                    />
+                  </Grid>
+                </Grid>
 
                 {/* Display error message */}
                 {error && (
-                  <MKBox mb={2} textAlign="center">
+                  <MKBox mt={2} textAlign="center">
                     <MKTypography variant="caption" color="error">
                       {error}
                     </MKTypography>
@@ -124,7 +227,7 @@ function UserRegistration() {
 
                 {/* Display success message */}
                 {successMessage && (
-                  <MKBox mb={2} textAlign="center">
+                  <MKBox mt={2} textAlign="center">
                     <MKTypography variant="caption" color="success">
                       {successMessage}
                     </MKTypography>

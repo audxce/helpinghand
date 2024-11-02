@@ -1,39 +1,36 @@
 const request = require("supertest");
 const express = require("express");
-const loginRoute = require("./login");
-const users = require("./users");
+const loginRoute = require("./login"); // Ensure this path is correct
+
 const app = express();
-app.use(express.json()); // Parse JSON bodies
-app.use("/login", loginRoute); // Use the login route
+app.use(express.json());
+app.use("/api/login", loginRoute); // Add the `/api` prefix to match your app’s route
 
-// Mock users array
-users.push({ email: "test@example.com", password: "password123" });
+describe("POST /api/login", () => {
+  it("should successfully log in with correct credentials", async () => {
+    const response = await request(app)
+      .post("/api/login")
+      .send({ email: "test@test.com", password: "correctpassword" });
 
-describe("POST /login", () => {
-  it("should return 200 and success message for valid credentials", async () => {
-    const res = await request(app)
-      .post("/login")
-      .send({ email: "test@example.com", password: "password123" });
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({ message: "Login successful!" });
+    expect(response.statusCode).toBe(200);
+    expect(response.body.message).toBe("Login successful!");
   });
 
-  it("should return 401 for invalid credentials", async () => {
-    const res = await request(app)
-      .post("/login")
-      .send({ email: "wrong@example.com", password: "wrongpassword" });
+  it("should fail to log in with incorrect password", async () => {
+    const response = await request(app)
+      .post("/api/login")
+      .send({ email: "test@test.com", password: "wrongpassword" });
 
-    expect(res.statusCode).toBe(401);
-    expect(res.body).toEqual({ message: "Invalid email or password" });
+    expect(response.statusCode).toBe(401);
+    expect(response.body.message).toBe("Invalid email or password");
   });
 
-  it("should return 401 if password is incorrect", async () => {
-    const res = await request(app)
-      .post("/login")
-      .send({ email: "test@example.com", password: "wrongpassword" });
+  it("should return 400 if email or password is missing", async () => {
+    const response = await request(app)
+      .post("/api/login")
+      .send({ email: "test@test.com" });
 
-    expect(res.statusCode).toBe(401);
-    expect(res.body).toEqual({ message: "Invalid email or password" });
+    expect(response.statusCode).toBe(400);
+    expect(response.body.message).toBe("Email and password are required");
   });
 });

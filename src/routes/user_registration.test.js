@@ -1,74 +1,70 @@
 const request = require("supertest");
 const express = require("express");
-const registrationRoute = require("./user_registration");
-const users = require("./users");
-
+const userRegistrationRoute = require("./user_registration"); // Adjust path if needed
 const app = express();
+
 app.use(express.json()); // Parse JSON bodies
-app.use("/register", registrationRoute); // Use the registration route
+app.use("/user_registration", userRegistrationRoute); // Use the user registration route
 
-// Mock users array (can be reset before each test if needed)
-beforeEach(() => {
-  users.length = 0; // Clear the users array before each test
-});
-
-describe("POST /register", () => {
-  // Test successful registration
-  it("should register a new user and return 201 status", async () => {
+describe("User Registration API", () => {
+  // Test the POST /user_registration route for a successful registration
+  it("should register a new user with all required fields", async () => {
     const newUser = {
-      email: "newuser@example.com",
+      email: "test@example.com",
       password: "password123",
       confirmPassword: "password123",
+      fullName: "Test",
     };
 
-    const res = await request(app).post("/register").send(newUser);
+    const res = await request(app).post("/user_registration").send(newUser);
 
     expect(res.statusCode).toBe(201);
-    expect(res.body).toHaveProperty("message", "User registered successfully!");
-    expect(users).toContainEqual({ email: newUser.email, password: newUser.password });
+    expect(res.body.message).toBe("User registered successfully!");
   });
 
-  // Test registration with missing fields
-  it("should return 400 if any field is missing", async () => {
+  // Test the POST /user_registration route with missing required fields
+  it("should return 400 for missing required fields", async () => {
     const incompleteUser = {
-      email: "incompleteuser@example.com",
+      email: "test@example.com",
       password: "password123",
     };
 
-    const res = await request(app).post("/register").send(incompleteUser);
+    const res = await request(app).post("/user_registration").send(incompleteUser);
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty("message", "All fields are required");
+    expect(res.body.message).toBe("Full name, email, and password are required");
   });
 
-  // Test registration with password mismatch
+  // Test the POST /user_registration route with mismatched passwords
   it("should return 400 if passwords do not match", async () => {
-    const userWithPasswordMismatch = {
-      email: "mismatchuser@example.com",
+    const mismatchedPasswordUser = {
+      email: "test@example.com",
       password: "password123",
       confirmPassword: "password321",
+      fullName: "Test",
     };
 
-    const res = await request(app).post("/register").send(userWithPasswordMismatch);
+    const res = await request(app).post("/user_registration").send(mismatchedPasswordUser);
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty("message", "Passwords do not match");
+    expect(res.body.message).toBe("Passwords do not match");
   });
 
-  // Test registration with an existing user
+  // Test the POST /user_registration route if the user already exists
   it("should return 409 if the user already exists", async () => {
-    // Add a user to the mock users array
-    users.push({ email: "existinguser@example.com", password: "password123" });
-
     const existingUser = {
-      email: "existinguser@example.com",
+      email: "test@example.com",
       password: "password123",
       confirmPassword: "password123",
+      fullName: "Test",
     };
 
-    const res = await request(app).post("/register").send(existingUser);
+    // First registration
+    await request(app).post("/user_registration").send(existingUser);
+    // Second registration attempt with the same email
+    const res = await request(app).post("/user_registration").send(existingUser);
 
     expect(res.statusCode).toBe(409);
-    expect(res.body).toHaveProperty("message", "User already exists");
+    expect(res.body.message).toBe("User already exists");
   });
 });
