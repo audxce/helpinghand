@@ -4,8 +4,7 @@ const express = require("express");
 const path = require("path");
 const open = require("open");
 require("dotenv").config({ path: "./db.env" });
-
-const db = require("./src/db"); // Import the database connection from db.js
+const conn = require("./db"); // Import database connection
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,8 +13,15 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Serve static files from the "build" directory in the root
-app.use(express.static(path.join(__dirname, "build")));
+// Serve static files only in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "build")));
+
+  // Serve React index.html for all non-API requests in production
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "build", "index.html"));
+  });
+}
 
 // Import routes
 const loginRoutes = require("./src/routes/login");
@@ -26,10 +32,7 @@ const volunteerHistoryRoutes = require("./src/routes/volunteerHistory");
 const profileRoutes = require("./src/routes/profile");
 const eventRoutes = require("./src/routes/event");
 
-const profileRoute = require("./src/routes/profileRoutes");
-
 // Use API routes
-app.use("/api/profileData", profileRoute);
 app.use("/api/login", loginRoutes);
 app.use("/api/user_registration", userRegistrationRoutes);
 app.use("/api/notifications", notificationRoutes);
@@ -38,17 +41,7 @@ app.use("/api/volunteerHistory", volunteerHistoryRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/event", eventRoutes);
 
-// Catch-all route to serve React's index.html for all non-API requests
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
-
 // Start server
 app.listen(PORT, () => {
-  if (process.env.NODE_ENV !== "production") {
-    open(`http://localhost:${PORT}`); // Automatically open the browser in development
-  }
   console.log(`Server is running on port ${PORT}`);
 });
-
-module.exports = db;
