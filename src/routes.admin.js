@@ -30,9 +30,7 @@ import Icon from "@mui/material/Icon";
 //import Author from "layouts/pages/LandingPages/author";
 
 import Event from "layouts/pages/LandingPages/event";
-import Login from "layouts/pages/LandingPages/login";
 import ProfileEdit from "layouts/pages/LandingPages/profile-edit";
-import UserRegistration from "layouts/pages/LandingPages/user-registration";
 import VolunteerForms from "layouts/pages/LandingPages/volunteer-forms";
 import VolunteerHistory from "layouts/pages/LandingPages/volunteer-history";
 import AdminDash from "layouts/pages/LandingPages/Admin";
@@ -47,16 +45,6 @@ const routes = [
       {
         name: "Pages",
         collapse: [
-          {
-            name: "Login",
-            route: "/pages/LandingPages/Login",
-            component: <Login />,
-          },
-          {
-            name: "User Registration",
-            route: "/pages/LandingPages/UserRegistration",
-            component: <UserRegistration />,
-          },
           {
             name: "Profile",
             route: "/pages/LandingPages/ProfileEdit",
