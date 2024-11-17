@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db");
 
-// Utility function to validate JSON strings
 function isValidJson(str) {
     try {
       JSON.parse(str);
@@ -24,18 +23,21 @@ function isValidJson(str) {
   
       const user = results[0];
 
-    res.json({
-      fullName: user.full_name,
-      address: user.address,
-      addressTwo: user.address_two,
-      city: user.city,
-      zipCode: user.zipcode,
-      state: user.state,
-      skills: user.skills,
-      preferences: user.preferences,
-      availability: user.availability
-    });
+      res.json({
+        fullName: user.full_name,
+        address: user.address,
+        addressTwo: user.address_two,
+        city: user.city,
+        zipCode: user.zipcode,
+        state: user.state,
+        skills: user.skills,
+        preferences: user.preferences,
+        availability: user.availability,
+      });
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ message: "Error fetching user data" });
+    }
   });
-});
 
 module.exports = router;
