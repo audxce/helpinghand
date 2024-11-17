@@ -79,37 +79,33 @@ describe("POST /api/event", () => {
   });
 
   it("should return 400 for invalid urgency value", async () => {
-    const response = await request(app)
-      .post("/api/event")
-      .send({
-        eventName: "Test Event Invalid Urgency",
-        eventDescription: "This is a test event with invalid urgency",
-        location: "Houston",
-        requiredSkills: "Leadership",
-        urgency: "Critical", // Invalid urgency
-        eventDate: "2024-10-18",
-        startTime: "10:00:00",
-        endTime: "13:00:00",
-        repeatEvent: "Daily",
-      });
+    const response = await request(app).post("/api/event").send({
+      eventName: "Test Event Invalid Urgency",
+      eventDescription: "This is a test event with invalid urgency",
+      location: "Houston",
+      requiredSkills: "Leadership",
+      urgency: "Critical", // Invalid urgency
+      eventDate: "2024-10-18",
+      startTime: "10:00:00",
+      endTime: "13:00:00",
+      repeatEvent: "Daily",
+    });
     expect(response.statusCode).toBe(400);
     expect(response.body.message).toBe("Invalid urgency level.");
   });
 
   it("should return 400 for invalid repeatEvent value", async () => {
-    const response = await request(app)
-      .post("/api/event")
-      .send({
-        eventName: "Test Event Invalid Repeat",
-        eventDescription: "This is a test event with invalid repeatEvent",
-        location: "Houston",
-        requiredSkills: "Leadership",
-        urgency: "High",
-        eventDate: "2024-10-18",
-        startTime: "10:00:00",
-        endTime: "13:00:00",
-        repeatEvent: "Yearly", // Invalid repeat event
-      });
+    const response = await request(app).post("/api/event").send({
+      eventName: "Test Event Invalid Repeat",
+      eventDescription: "This is a test event with invalid repeatEvent",
+      location: "Houston",
+      requiredSkills: "Leadership",
+      urgency: "High",
+      eventDate: "2024-10-18",
+      startTime: "10:00:00",
+      endTime: "13:00:00",
+      repeatEvent: "Yearly", // Invalid repeat event
+    });
     expect(response.statusCode).toBe(400);
     expect(response.body.message).toBe("Invalid repeat event value.");
   });

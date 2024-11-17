@@ -2,16 +2,31 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const express = require("express");
 const path = require("path");
-const open = require("open");
+const session = require("express-session");
 require("dotenv").config({ path: "./db.env" });
+
 const conn = require("./db"); // Import database connection
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({ credentials: true, origin: "http://localhost:3000" })); // Allow cookies from frontend
 app.use(bodyParser.json());
+
+// Session middleware
+app.use(
+  session({
+    key: "user_sid", // Cookie name
+    secret: "my_simple_secret_key",
+    resave: false, // Avoid saving unchanged sessions
+    saveUninitialized: false, // Don't create empty sessions
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // 1 day in milliseconds
+      httpOnly: true, // Prevents JavaScript access to the cookie
+    },
+  })
+);
 
 // Serve static files only in production
 if (process.env.NODE_ENV === "production") {

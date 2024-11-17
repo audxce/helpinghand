@@ -2,18 +2,24 @@ const express = require("express");
 const router = express.Router();
 const db = require("../../db");
 
+// Utility function to validate JSON strings
 function isValidJson(str) {
-    try {
-      JSON.parse(str);
-    } catch (e) {
-      return false;
-    }
-    return true;
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
+// Fetch user profile by user_id from session
+router.get("/profile", (req, res) => {
+  const userId = req.session?.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
   }
 
-router.get("/profile/:userId", (req, res) => {
-  
-  const { userId } = req.params;  
   const query = "SELECT * FROM UserProfile WHERE user_id = ?";
 
   db.query(query, [userId], (error, results) => {
@@ -35,9 +41,9 @@ router.get("/profile/:userId", (req, res) => {
       city: user.city,
       zipCode: user.zipcode,
       state: user.state,
-      skills: user.skills,
-      preferences: user.preferences,
-      availability: user.availability
+      skills: isValidJson(user.skills) ? JSON.parse(user.skills) : [],
+      preferences: isValidJson(user.preferences) ? JSON.parse(user.preferences) : [],
+      availability: isValidJson(user.availability) ? JSON.parse(user.availability) : [],
     });
   });
 });
