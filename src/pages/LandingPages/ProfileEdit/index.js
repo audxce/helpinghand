@@ -89,6 +89,23 @@ function ProfileEdit() {
     return `${year}/${month}/${day}`;
   };
 
+  const parseDates = (formattedDates) => {
+    if (!formattedDates || !Array.isArray(formattedDates)) {
+      return [];
+    }
+
+    return formattedDates.map((dateStr) => {
+      // If the dateStr contains a range ("2023/11/15 - 2023/11/20")
+      if (dateStr.includes(" - ")) {
+        const range = dateStr.split(" - ").map((date) => new Date(date));
+        return range;
+      }
+
+      // If it a single date (e.g., "2023/11/15")
+      return new Date(dateStr);
+    });
+  };
+
   const formatDates = (dates) => {
     if (!Array.isArray(dates) || dates.length === 0) {
       return "";
@@ -129,7 +146,7 @@ function ProfileEdit() {
         setSelectedState(userData.state);
         setSkills(userData.skills.map((skill) => ({ value: skill, label: skill })));
         setPreferences(userData.preferences);
-        setValues(userData.availability || []);
+        setValues(parseDates(userData.availability || []));
       })
       .catch((error) => {
         console.error("Errfetching profile data:", error);
