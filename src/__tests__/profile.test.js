@@ -6,9 +6,9 @@ const db = require("../../db");
 jest.mock("../db", () => ({
   query: jest.fn((query, params, callback) => {
     if (query.startsWith("SELECT")) {
-      callback(null, []); 
+      callback(null, []);
     } else if (query.startsWith("INSERT") || query.startsWith("UPDATE")) {
-      callback(null); 
+      callback(null);
     } else {
       callback(new Error("Unknown query"));
     }

@@ -8,7 +8,7 @@ import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -17,7 +17,9 @@ function Login() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Updated handleSubmit function with axios request
+  const navigate = useNavigate(); // Hook for navigation
+
+  // Updated handleSubmit function with axios request and redirect
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Set loading to true when request starts
@@ -32,7 +34,16 @@ function Login() {
 
       console.log(response.data.message);
       setSuccessMessage("Login successful! Redirecting...");
-      // Handle successful login (redirect user, save token, etc.)
+
+      // Check role and navigate to the appropriate homepage
+      const role = response.data.role; // Assuming 'role' is returned from the backend
+      if (role === "admin") {
+        navigate("/admin-home"); // Redirect to admin homepage
+      } else if (role === "volunteer") {
+        navigate("/volunteer-home"); // Redirect to volunteer homepage
+      } else {
+        setErrorMessage("Unknown role. Please contact support."); // Handle unexpected roles
+      }
     } catch (error) {
       console.error(error.response?.data?.message || "Login error");
       setErrorMessage(error.response?.data?.message || "Login error");

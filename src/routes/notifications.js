@@ -1,45 +1,74 @@
-// routes/notifications.js
 const express = require("express");
 const router = express.Router();
+const db = require("../../db"); // Replace with your database connection
 
-// In-memory storage for notifications (you can replace this with a database later)
-let notifications = [
-  { id: 1, message: "New event assignment", read: false },
-  { id: 2, message: "Reminder: Meeting at 5 PM", read: false },
-  { id: 3, message: "Update: Event postponed", read: true }, // Read notification
-];
-
-// Get all notifications
+// Get all notifications for the logged-in user
 router.get("/", (req, res) => {
-  res.json(notifications);
-});
+  const userId = req.session?.user?.id; // Retrieve user_id from session
 
-// Mark all notifications as read
-router.put("/mark-all-read", (req, res) => {
-  notifications = notifications.map((n) => ({ ...n, read: true }));
-  res.json({ success: true, notifications });
-});
-
-// Add a new notification (for event assignment, reminder, or update)
-router.post("/", (req, res) => {
-  const { message, userId, eventId } = req.body;
-
-  // Validate request data
-  if (!message || !userId || !eventId) {
-    return res.status(400).json({ error: "Message, userId, and eventId are required" });
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
   }
 
-  const newNotification = {
-    id: notifications.length + 1,
-    message,
-    read: false,
-    userId, // Associate notification with the user
-    eventId, // Associate notification with the event
-    timestamp: new Date(),
-  };
+  const query = "SELECT * FROM notifications WHERE userId = ? ORDER BY msgtimestamp DESC";
 
-  notifications.push(newNotification);
-  res.json({ success: true, notification: newNotification });
+  db.query(query, [userId], (error, results) => {
+    if (error) {
+      console.error("Database error:", error);
+      return res.status(500).json({ message: "Error fetching notifications" });
+    }
+
+    res.json(results);
+  });
+});
+
+// Mark all notifications for the logged-in user as read
+router.put("/mark-all-read", (req, res) => {
+  const userId = req.session?.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
+
+  const query = "UPDATE notifications SET readmsg = 1 WHERE userId = ?";
+
+  db.query(query, [userId], (error, results) => {
+    if (error) {
+      console.error("Database error:", error);
+      return res.status(500).json({ message: "Error marking notifications as read" });
+    }
+
+    res.json({ success: true, message: "All notifications marked as read." });
+  });
+});
+
+// Add a new notification
+router.post("/", (req, res) => {
+  const { message, eventId, msgtype } = req.body; // No need for userId since it's retrieved from session
+  const userId = req.session?.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
+
+  // Validate request data
+  if (!message || !eventId || !msgtype) {
+    return res.status(400).json({ error: "Message, eventId, and msgtype are required" });
+  }
+
+  const query = `
+    INSERT INTO notifications (userId, eventId, message, readmsg, msgtimestamp, msgtype)
+    VALUES (?, ?, ?, 0, NOW(), ?)
+  `;
+
+  db.query(query, [userId, eventId, message, msgtype], (error, results) => {
+    if (error) {
+      console.error("Database error:", error);
+      return res.status(500).json({ message: "Error creating notification" });
+    }
+
+    res.json({ success: true, message: "Notification added successfully." });
+  });
 });
 
 module.exports = router;

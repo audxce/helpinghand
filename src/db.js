@@ -2,7 +2,7 @@ const fs = require("fs");
 const mysql = require("mysql2/promise"); // Use `mysql2/promise` to support async/await
 require("dotenv").config({ path: "./db.env" });
 
-const dbConfig = 
+const dbConfig =
   process.env.NODE_ENV === "production"
     ? JSON.parse(process.env.MySQL_Database)
     : {
@@ -12,10 +12,10 @@ const dbConfig =
         database: "userdatabase",
         port: 3306,
         ssl: {
-            ca: fs.readFileSync(`${__dirname}/../DigiCertGlobalRootCA.crt.pem`), // Adjusted path
-            rejectUnauthorized: true,
+          ca: fs.readFileSync(`${__dirname}/../DigiCertGlobalRootCA.crt.pem`), // Adjusted path
+          rejectUnauthorized: true,
         },
-    };
+      };
 
 const db = mysql.createPool(dbConfig); // Pool is now Promise-compatible
 
