@@ -116,7 +116,7 @@ function ProfileEdit() {
   useEffect(() => {
     const userId = 1;
     axios
-      .get(`http://localhost:5000/api/profileData/profile/${userId}`)
+      .get(`http://localhost:5000/api/profileEdit/profile/${userId}`)
       .then((response) => {
         const userData = response.data;
         setInputs({
@@ -166,7 +166,7 @@ function ProfileEdit() {
     };
     console.log("Data:", dataToSend);
     try {
-      const response = await axios.post("http://localhost:5000/api/profile", dataToSend);
+      const response = await axios.post("http://localhost:5000/api/profileData", dataToSend);
       console.log("Profile updated successfully:", response.data);
     } catch (error) {
       console.error("Error updating profile:", error.response?.data?.message);

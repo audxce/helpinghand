@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 // @mui material components
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -10,10 +11,6 @@ import MKTypography from "components/MKTypography";
 import DefaultFooter from "examples/Footers/SimpleFooter";
 import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 
-// Presentation page sections
-
-// Presentation page components
-
 // Routes
 import footerRoutes from "footer.routes";
 import routes from "routes.admin";
@@ -22,7 +19,45 @@ import routes from "routes.admin";
 import bgImage from "assets/images/hh-bg.jpg";
 import hhlogo from "assets/images/hhlogo.png";
 
+import axios from "axios";
+
+// Fetch active events function (assuming the backend is set up)
+async function fetchActiveEvents() {
+  try {
+    const response = await axios.get("http://localhost:5000/api/event/active");
+
+    const data = response.data;
+
+    return data;
+  } catch (error) {
+    // Log any errors encountered
+    console.error("Error fetching active events:", error);
+
+    return [];
+  }
+}
 function Presentation() {
+  const [events, setEvents] = useState([]);
+
+  const getUrgencyColor = (urgency) => {
+    switch (urgency) {
+      case "Low":
+        return "green";
+      case "Medium":
+        return "orange";
+      case "High":
+        return "red";
+      default:
+        return "black";
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveEvents().then((data) => {
+      setEvents(data);
+    });
+  }, []);
+
   return (
     <>
       <DefaultNavbar routes={routes} />
@@ -69,9 +104,11 @@ function Presentation() {
               px={{ xs: 6, lg: 12 }}
               mt={1}
             >
-              Let&apos;s make the world a better place
+              Admin View
             </MKTypography>
           </Grid>
+
+          {/* Display each active event */}
           <MKBox
             bgColor="white"
             borderRadius="xl"
@@ -82,35 +119,46 @@ function Presentation() {
             mt={{ xs: 20, sm: 18, md: 5 }}
             mb={{ xs: 20, sm: 18, md: -10 }}
             mx={2}
+            flexWrap="wrap"
           >
-            <MKBox
-              bgColor="white"
-              borderRadius="xl"
-              shadow="lg"
-              display="flex"
-              flexDirection="row"
-              justifyContent="center"
-              p={5}
-              mx={2}
-            >
-              <MKTypography variant="h6" color="textPrimary" textAlign="center" p={2}>
-                Event 1
-              </MKTypography>
-            </MKBox>
-            <MKBox
-              bgColor="white"
-              borderRadius="xl"
-              shadow="lg"
-              display="flex"
-              flexDirection="row"
-              justifyContent="center"
-              p={5}
-              mx={2}
-            >
-              <MKTypography variant="h6" color="textPrimary" textAlign="center" p={2}>
-                Event 2
-              </MKTypography>
-            </MKBox>
+            {events.map((event) => (
+              <MKBox
+                key={event.EventID}
+                bgColor="white"
+                borderRadius="xl"
+                shadow="lg"
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                p={5}
+                mx={2}
+                my={2}
+              >
+                <MKTypography variant="h6" color="textPrimary" textAlign="center" p={-5}>
+                  {event.eventName}
+                </MKTypography>
+                <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                  {event.eventDescription}
+                </MKTypography>
+                <MKTypography
+                  variant="body2"
+                  textAlign="center"
+                  p={-5}
+                  sx={{ color: getUrgencyColor(event.urgency) }}
+                >
+                  Urgency: {event.urgency}
+                </MKTypography>
+                <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                  {event.startTime} - {event.endTime} | Repeat: {event.repeatEvent}
+                </MKTypography>
+                <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                  Location: {event.state}
+                </MKTypography>
+                <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                  Skills Needed: {event.requiredSkills}
+                </MKTypography>
+              </MKBox>
+            ))}
           </MKBox>
         </Container>
       </MKBox>

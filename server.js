@@ -32,6 +32,7 @@ const volunteerHistoryRoutes = require("./src/routes/volunteerHistory");
 const profileRoutes = require("./src/routes/profile");
 const eventRoutes = require("./src/routes/event");
 const statesRoutes = require("./src/routes/state");
+const profileDBRoutes = require("./src/routes/profileRoutes");
 
 // Use API routes
 app.use("/api/login", loginRoutes);
@@ -43,6 +44,7 @@ app.use("/api/profileData", profileRoutes);
 app.use("/api/event", eventRoutes);
 
 app.use("/api", statesRoutes);
+app.use("/api/profileEdit", profileDBRoutes);
 
 // Start server
 app.listen(PORT, () => {

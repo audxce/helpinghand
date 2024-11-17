@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../../db");
+const db = require("../db");
 
 function isValidJson(str) {
     try {
@@ -10,36 +10,34 @@ function isValidJson(str) {
     }
     return true;
   }
-
-router.get("/profile/:userId", (req, res) => {
+  router.get("/profile/:userId", async (req, res) => {
+    const { userId } = req.params;
+    const query = "SELECT * FROM UserProfile WHERE user_id = ?";
   
-  const { userId } = req.params;  
-  const query = "SELECT * FROM UserProfile WHERE user_id = ?";
+    try {
+      const [results] = await db.query(query, [userId]);
+  
+      if (results.length === 0) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      const user = results[0];
 
-  db.query(query, [userId], (error, results) => {
-    if (error) {
+      res.json({
+        fullName: user.full_name,
+        address: user.address,
+        addressTwo: user.address_two,
+        city: user.city,
+        zipCode: user.zipcode,
+        state: user.state,
+        skills: user.skills,
+        preferences: user.preferences,
+        availability: user.availability,
+      });
+    } catch (error) {
       console.error("Database error:", error);
-      return res.status(500).json({ message: "Error fetching user data" });
+      res.status(500).json({ message: "Error fetching user data" });
     }
-
-    if (results.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const user = results[0];
-
-    res.json({
-      fullName: user.full_name,
-      address: user.address,
-      addressTwo: user.address_two,
-      city: user.city,
-      zipCode: user.zipcode,
-      state: user.state,
-      skills: user.skills,
-      preferences: user.preferences,
-      availability: user.availability
-    });
   });
-});
 
 module.exports = router;
