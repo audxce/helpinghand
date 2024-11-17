@@ -110,10 +110,30 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const [events] = await db.query("SELECT * FROM EventDetails");
+
     res.status(200).json(events);
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ message: "An error occurred while fetching events." });
+  }
+});
+
+router.get("/active", async (req, res) => {
+  try {
+    // Query for events where activeEvent is 1 (active)
+    const [events] = await db.query("SELECT * FROM EventDetails WHERE activeEvent = 1");
+
+    // Check if events are found
+    if (events.length === 0) {
+      return res.status(404).json({ message: "No active events found." });
+    }
+
+    // Send the active events as a response
+    res.status(200).json(events);
+  } catch (error) {
+    // Handle database or any other errors
+    console.error("Database error:", error);
+    res.status(500).json({ message: "An error occurred while fetching active events." });
   }
 });
 

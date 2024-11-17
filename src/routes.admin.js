@@ -70,6 +70,9 @@ const routes = [
             route: "/pages/LandingPages/AdminDash",
             component: <AdminDash />,
           },
+          {
+            name: "Logout",
+          },
         ],
       },
     ],

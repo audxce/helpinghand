@@ -24,6 +24,8 @@ import bgImage from "assets/images/hh-bg.jpg";
 import axios from "axios";
 
 function ProfileEdit() {
+  const [states, setStates] = useState([]);
+
   const [dropdown, setDropdown] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
 
@@ -114,7 +116,7 @@ function ProfileEdit() {
   useEffect(() => {
     const userId = 1;
     axios
-      .get(`http://localhost:5000/api/profileData/profile/${userId}`)
+      .get(`http://localhost:5000/api/profileEdit/profile/${userId}`)
       .then((response) => {
         const userData = response.data;
         setInputs({
@@ -130,7 +132,18 @@ function ProfileEdit() {
         setValues(userData.availability || []);
       })
       .catch((error) => {
-        console.error("Error fetching profile data:", error);
+        console.error("Errfetching profile data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/states")
+      .then((response) => {
+        setStates(response.data); // Save the state codes in the states array
+      })
+      .catch((error) => {
+        console.error("Errr fetching states:", error);
       });
   }, []);
 
@@ -153,7 +166,7 @@ function ProfileEdit() {
     };
     console.log("Data:", dataToSend);
     try {
-      const response = await axios.post("http://localhost:5000/api/profile", dataToSend);
+      const response = await axios.post("http://localhost:5000/api/profileData", dataToSend);
       console.log("Profile updated successfully:", response.data);
     } catch (error) {
       console.error("Error updating profile:", error.response?.data?.message);
@@ -269,56 +282,14 @@ function ProfileEdit() {
                         <Icon sx={dropdownIconStyles}>expand_more</Icon>
                       </MKButton>
                       <Menu anchorEl={dropdown} open={Boolean(dropdown)} onClose={closeDropdown}>
-                        <MenuItem onClick={() => handleStateSelect("AL")}>AL</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("AK")}>AK</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("AZ")}>AZ</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("AR")}>AR</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("CA")}>CA</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("CO")}>CO</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("CT")}>CT</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("DE")}>DE</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("FL")}>FL</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("GA")}>GA</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("HI")}>HI</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("ID")}>ID</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("IL")}>IL</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("IN")}>IN</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("IA")}>IA</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("KS")}>KS</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("KY")}>KY</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("LA")}>LA</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("ME")}>ME</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("MD")}>MD</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("MA")}>MA</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("MI")}>MI</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("MN")}>MN</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("MS")}>MS</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("MO")}>MO</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("MT")}>MT</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("NE")}>NE</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("NV")}>NV</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("NH")}>NH</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("NJ")}>NJ</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("NM")}>NM</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("NY")}>NY</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("NC")}>NC</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("ND")}>ND</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("OH")}>OH</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("OK")}>OK</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("OR")}>OR</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("PA")}>PA</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("RI")}>RI</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("SC")}>SC</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("SD")}>SD</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("TN")}>TN</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("TX")}>TX</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("UT")}>UT</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("VT")}>VT</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("VA")}>VA</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("WA")}>WA</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("WV")}>WV</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("WI")}>WI</MenuItem>
-                        <MenuItem onClick={() => handleStateSelect("WY")}>WY</MenuItem>
+                        {states.map((state) => (
+                          <MenuItem
+                            key={state.stateCode}
+                            onClick={() => handleStateSelect(state.stateCode)}
+                          >
+                            {state.stateCode}
+                          </MenuItem>
+                        ))}
                       </Menu>
                     </Grid>
                   </Grid>
