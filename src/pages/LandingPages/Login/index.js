@@ -19,7 +19,19 @@ function Login() {
 
   const navigate = useNavigate(); // Hook for navigation
 
-  // Updated handleSubmit function with axios request and redirect
+  // Function to check session after login
+  const checkSession = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/check-session", {
+        withCredentials: true, // Ensures cookies are sent with the request
+      });
+      console.log("Session Data:", response.data.session); // Log session data for debugging
+    } catch (error) {
+      console.error("Session Check Error:", error.response?.data?.message || error.message);
+    }
+  };
+
+  // Updated handleSubmit function with session check
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Set loading to true when request starts
@@ -27,23 +39,27 @@ function Login() {
     setSuccessMessage("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/login",
+        { email, password },
+        { withCredentials: true } // Ensure cookies are set
+      );
 
       console.log(response.data.message);
       setSuccessMessage("Login successful! Redirecting...");
 
       // Check role and navigate to the appropriate homepage
       const role = response.data.role; // Assuming 'role' is returned from the backend
-      if (role === "admin") {
-        navigate("/admin-home"); // Redirect to admin homepage
+      if (role === "administrator") {
+        navigate("/pages/LandingPages/AdminDash"); // Redirect to admin homepage
       } else if (role === "volunteer") {
-        navigate("/volunteer-home"); // Redirect to volunteer homepage
+        navigate("/pages/LandingPages/VolunteerDash"); // Redirect to volunteer homepage
       } else {
         setErrorMessage("Unknown role. Please contact support."); // Handle unexpected roles
       }
+
+      // Perform session check after successful login
+      await checkSession();
     } catch (error) {
       console.error(error.response?.data?.message || "Login error");
       setErrorMessage(error.response?.data?.message || "Login error");

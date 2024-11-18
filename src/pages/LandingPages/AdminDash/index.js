@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 // @mui material components
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
 
 // Material Kit 2 React components
 import MKBox from "components/MKBox";
@@ -38,7 +38,7 @@ async function fetchActiveEvents() {
 // Fetch volunteer users function
 async function fetchUsers() {
   try {
-    const response = await axios.get("http://localhost:5000/api/profileEdit/volunteer");
+    const response = await axios.get("http://localhost:5000/api/profile/volunteer");
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -49,7 +49,7 @@ async function fetchUsers() {
 // Fetch admin users function
 async function fetchAdmin() {
   try {
-    const response = await axios.get("http://localhost:5000/api/profileEdit/admin");
+    const response = await axios.get("http://localhost:5000/api/profile/admin");
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);
