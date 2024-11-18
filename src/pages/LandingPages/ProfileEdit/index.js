@@ -1,215 +1,115 @@
-import { useState, useEffect } from "react";
-
-//multi-dropdown
-import Select from "react-select";
-
-//calender
-import DatePicker from "react-multi-date-picker";
-
-// @mui material components
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import Icon from "@mui/material/Icon";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-
-// Material Kit 2 React components
+import axios from "axios";
 import MKBox from "components/MKBox";
 import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
-
-import bgImage from "assets/images/hh-bg.jpg";
-
-import axios from "axios";
+import { useEffect, useState } from "react";
+import DatePicker from "react-multi-date-picker";
+import Select from "react-select";
 
 function ProfileEdit() {
-  const [states, setStates] = useState([]);
-
-  const [dropdown, setDropdown] = useState(null);
-  const [selectedState, setSelectedState] = useState(null);
-
-  const [skills, setSkills] = useState([]);
-  const [preferences, setPreferences] = useState("");
-
-  const [inputs, setInputs] = useState({
-    fullName: { value: "", isSuccess: false, isFail: false },
-    address: { value: "", isSuccess: false, isFail: false },
-    addressTwo: { value: "", isSuccess: false, isFail: false },
-    city: { value: "", isSuccess: false, isFail: false },
-    zipCode: { value: "", isSuccess: false, isFail: false },
+  const [profileData, setProfileData] = useState({
+    fullName: "",
+    address: "",
+    addressTwo: "",
+    city: "",
+    state: "", // Prepopulate from userprofile table
+    zipCode: "",
+    skills: [],
+    preferences: [],
+    availability: [],
   });
 
-  //cal
-  const [values, setValues] = useState([]);
-  const openDropdown = ({ currentTarget }) => setDropdown(currentTarget);
-  const closeDropdown = () => setDropdown(null);
+  const [states, setStates] = useState([]); // Dropdown options for states
+  const [loading, setLoading] = useState(true);
 
-  const handleStateSelect = (state) => {
-    setSelectedState(state);
-    closeDropdown();
+  // Custom styles for the Select component
+  const customSelectStyles = {
+    control: (provided) => ({
+      ...provided,
+      fontSize: "16px",
+      fontWeight: "400",
+      color: "#7B809A", // Matches input field label color
+      border: "1px solid #D1D1D1",
+      boxShadow: "none",
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      fontSize: "16px",
+      color: "#7B809A",
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      fontSize: "16px",
+      color: "#000", // Text color for the selected value
+    }),
   };
 
-  //multi-dropdown
-  const options = [
-    { value: "cooking", label: "Cooking" },
-    { value: "gardening", label: "Gardening" },
-    { value: "Building", label: "building" },
-  ];
+  // Fetch profile and state data on component mount
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/profile", {
+          withCredentials: true,
+        });
+        setProfileData(response.data); // Prepopulate profile data from userprofile
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching profile data:", error.response?.data || error.message);
+        setLoading(false);
+      }
+    };
 
-  // Styles
-  const iconStyles = {
-    ml: 1,
-    fontWeight: "bold",
-    transition: "transform 200ms ease-in-out",
-  };
+    const fetchStates = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/states"); // Fetch states from states table
+        setStates(
+          response.data.map((state) => ({
+            value: state.stateCode,
+            label: state.stateName,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching states:", error.response?.data || error.message);
+      }
+    };
 
-  const dropdownIconStyles = {
-    transform: dropdown ? "rotate(180deg)" : "rotate(0)",
-    ...iconStyles,
-  };
-
-  //const [fullName, setFullName] = useState('');
+    fetchProfileData();
+    fetchStates();
+  }, []);
 
   const handleChange = (field) => (event) => {
-    const value = event.target.value;
-    const isSuccess = value.length > 0;
-    const fail = false;
-
-    setInputs((prev) => ({
-      ...prev,
-      [field]: { value, isSuccess, fail },
-    }));
+    setProfileData((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}/${month}/${day}`;
+  const handleDateChange = (dates) => {
+    setProfileData((prev) => ({ ...prev, availability: dates }));
   };
 
-  const parseDates = (formattedDates) => {
-    if (!formattedDates || !Array.isArray(formattedDates)) {
-      return [];
-    }
-
-    return formattedDates.map((dateStr) => {
-      // If the dateStr contains a range ("2023/11/15 - 2023/11/20")
-      if (dateStr.includes(" - ")) {
-        const range = dateStr.split(" - ").map((date) => new Date(date));
-        return range;
-      }
-
-      // If it a single date (e.g., "2023/11/15")
-      return new Date(dateStr);
-    });
+  const handleStateChange = (selectedOption) => {
+    setProfileData((prev) => ({ ...prev, state: selectedOption.value }));
   };
 
-  const formatDates = (dates) => {
-    if (!Array.isArray(dates) || dates.length === 0) {
-      return "";
-    }
-    const formattedDates = [];
-    for (const date of dates) {
-      let forDate = "";
-      if (date.length == 1) {
-        forDate += formatDate(new Date(date[0]));
-        formattedDates.push(forDate);
-        break;
-      }
-      for (let i = 0; i < date.length; i++) {
-        forDate += formatDate(new Date(date[i]));
-        if (i != date.length - 1) {
-          forDate += " - ";
-        }
-      }
-      formattedDates.push(forDate);
-    }
-
-    return formattedDates;
-  };
-
-  useEffect(() => {
-    const userId = 1;
-    axios
-      .get(`http://localhost:5000/api/profileEdit/profile/${userId}`)
-      .then((response) => {
-        const userData = response.data;
-        setInputs({
-          fullName: { value: userData.fullName, isSuccess: true, isFail: false },
-          address: { value: userData.address, isSuccess: true, isFail: false },
-          addressTwo: { value: userData.addressTwo || "", isSuccess: true, isFail: false },
-          city: { value: userData.city, isSuccess: true, isFail: false },
-          zipCode: { value: userData.zipCode, isSuccess: true, isFail: false },
-        });
-        setSelectedState(userData.state);
-        setSkills(userData.skills.map((skill) => ({ value: skill, label: skill })));
-        setPreferences(userData.preferences);
-        setValues(parseDates(userData.availability || []));
-      })
-      .catch((error) => {
-        console.error("Errfetching profile data:", error);
-      });
-  }, []);
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/states")
-      .then((response) => {
-        setStates(response.data); // Save the state codes in the states array
-      })
-      .catch((error) => {
-        console.error("Errr fetching states:", error);
-      });
-  }, []);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    //console.log("test:", values);
-    const formattedAvailability = formatDates(values);
-
-    const dataToSend = {
-      fullName: inputs.fullName.value,
-      address: inputs.address.value,
-      addressTwo: inputs.addressTwo.value,
-      city: inputs.city.value,
-      state: selectedState,
-      zipCode: inputs.zipCode.value,
-      skills: skills.map((skill) => skill.value),
-      preferences: preferences,
-      availability: formattedAvailability,
-    };
-    console.log("Data:", dataToSend);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/profileData", dataToSend);
-      console.log("Profile updated successfully:", response.data);
+      await axios.post("http://localhost:5000/api/profile", profileData, {
+        withCredentials: true,
+      });
+      alert("Profile updated successfully!");
     } catch (error) {
-      console.error("Error updating profile:", error.response?.data?.message);
-
-      if (error.response?.data?.message == "Invalid zip code format") {
-        setInputs((prev) => ({
-          ...prev,
-          zipCode: { ...prev.zipCode, isSuccess: false, isFail: true },
-        }));
-      }
-      if (error.response?.data?.message == "All fields are required") {
-        for (const key in inputs) {
-          if (!inputs[key].value) {
-            setInputs((prev) => ({
-              ...prev,
-              [key]: {
-                ...prev[key],
-                isSuccess: false,
-                isFail: true,
-              },
-            }));
-          }
-        }
-      }
+      console.error("Error updating profile:", error.response?.data || error.message);
+      alert("Failed to update profile.");
     }
   };
+
+  if (loading) {
+    return (
+      <MKBox display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <MKTypography variant="h6">Loading...</MKTypography>
+      </MKBox>
+    );
+  }
 
   return (
     <MKBox
@@ -219,203 +119,146 @@ function ProfileEdit() {
       display="flex"
       flexDirection="column"
       justifyContent="center"
-      mt={{ xs: 20, sm: 18, md: 20 }}
-      mb={{ xs: 20, sm: 18, md: 20 }}
-      mx={70}
+      p={3}
+      mx={10}
+      mt={5}
     >
-      <MKBox component="section" py={5}>
-        <Container>
-          <Grid container item xs={12} lg={8} py={1} mx="auto" style={{ marginTop: "10px" }}>
-            <MKInput
-              variant="standard"
-              label="Full Name*"
-              placeholder="eg. Raj Singh"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              inputProps={{ maxLength: 50 }}
-              onChange={handleChange("fullName")}
-              error={inputs.fullName.isFail}
-              success={inputs.fullName.isSuccess}
-              value={inputs.fullName.value}
-            />
-          </Grid>
-        </Container>
-        <MKBox component="section" py={5}>
-          <Container>
-            <Grid container item xs={12} lg={8} py={1} mx="auto">
-              <MKInput
-                maxLength={2}
-                variant="standard"
-                label="Address 1*"
-                inputProps={{ maxLength: 100 }}
-                placeholder="eg. 4302 University Dr, Houston, TX 77004"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                onChange={handleChange("address")}
-                error={inputs.address.isFail}
-                success={inputs.address.isSuccess}
-                value={inputs.address.value}
-              />
-            </Grid>
-          </Container>
-          <MKBox component="section" py={5}>
-            <Container>
-              <Grid container item xs={12} lg={8} py={1} mx="auto">
-                <MKInput
-                  variant="standard"
-                  label="Address 2"
-                  inputProps={{ maxLength: 100 }}
-                  onChange={handleChange("addressTwo")}
-                  placeholder="eg. 4302 University Dr, Houston, TX 77004"
-                  InputLabelProps={{ shrink: true }}
-                  fullWidth
-                  value={inputs.addressTwo.value}
-                />
-              </Grid>
-            </Container>
-            <MKBox component="section" py={5}>
-              <Container>
-                <Grid container item xs={12} lg={8} py={1} mx="auto">
-                  <MKInput
-                    variant="standard"
-                    label="City*"
-                    inputProps={{ maxLength: 100 }}
-                    onChange={handleChange("city")}
-                    success={inputs.city.isSuccess}
-                    error={inputs.city.isFail}
-                    placeholder="eg. Houston"
-                    InputLabelProps={{ shrink: true }}
-                    fullWidth
-                    value={inputs.city.value}
-                  />
-                </Grid>
-              </Container>
-              <MKBox component="section" py={5}>
-                <Container>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} lg={12} textAlign="center">
-                      <MKButton variant="gradient" color="info" onClick={openDropdown}>
-                        {selectedState ? selectedState : "State*"}
-                        <Icon sx={dropdownIconStyles}>expand_more</Icon>
-                      </MKButton>
-                      <Menu anchorEl={dropdown} open={Boolean(dropdown)} onClose={closeDropdown}>
-                        {states.map((state) => (
-                          <MenuItem
-                            key={state.stateCode}
-                            onClick={() => handleStateSelect(state.stateCode)}
-                          >
-                            {state.stateCode}
-                          </MenuItem>
-                        ))}
-                      </Menu>
-                    </Grid>
-                  </Grid>
-                </Container>
-                <MKBox component="section" py={3}>
-                  <Container>
-                    <Grid container item xs={12} lg={8} py={1} mx="auto">
-                      <MKInput
-                        type="number"
-                        variant="standard"
-                        label="Zip code*"
-                        placeholder="eg. 77004"
-                        InputLabelProps={{ shrink: true }}
-                        fullWidth
-                        onChange={handleChange("zipCode")}
-                        onInput={(e) => {
-                          if (e.target.value.length > 9) {
-                            e.target.value = e.target.value.slice(0, 9);
-                          }
-                        }}
-                        error={inputs.zipCode.isFail}
-                        success={inputs.zipCode.isSuccess}
-                        value={inputs.zipCode.value}
-                      />
-                    </Grid>
-                  </Container>
-                  <MKBox component="section" py={3}>
-                    <Container>
-                      <Grid container item xs={12} lg={8} py={1} mx="auto">
-                        <Grid item xs={12} sm={10}>
-                          <MKTypography variant="h6" color="gray" fontsize="5">
-                            Skills*
-                          </MKTypography>
-                        </Grid>
-                        <Select
-                          //defaultValue={[colourOptions[2], colourOptions[3]]}
-                          isMulti
-                          name="colors"
-                          options={options}
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                          onChange={setSkills}
-                          value={skills}
-                        />
-                      </Grid>
-                    </Container>
-                    <MKBox component="section" py={3}>
-                      <Container>
-                        <Grid container item xs={12} lg={8} py={1} mx="auto">
-                          <MKInput
-                            variant="standard"
-                            label="Preferences"
-                            placeholder="Message"
-                            multiline
-                            InputLabelProps={{ shrink: true }}
-                            fullWidth
-                            onChange={(event) => setPreferences(event.target.value)}
-                            rows={6}
-                            value={preferences}
-                          />
-                        </Grid>
-                      </Container>
-                      <MKBox component="section" py={3}>
-                        <Container>
-                          <Grid container item xs={12} lg={4} py={1} mx="auto">
-                            <Grid item xs={12} sm={10}>
-                              <MKTypography variant="h6" color="gray" fontsize="5">
-                                Availability*
-                              </MKTypography>
-                            </Grid>
-                            <DatePicker
-                              onChange={setValues}
-                              multiple
-                              range
-                              format="MM/DD/YYYY"
-                              value={values}
-                            />
-                          </Grid>
-                        </Container>
-                        <MKBox
-                          position="absolute"
-                          top={0}
-                          left={0}
-                          zIndex={-1}
-                          width="100%"
-                          minHeight="200vh"
-                          sx={{
-                            backgroundImage: `url(${bgImage})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                            backgroundRepeat: "repeat",
-                          }}
-                        />
-                        <MKBox component="section" py={3}>
-                          <Container>
-                            <Grid container item xs={12} lg={2.7} py={1} mx="auto">
-                              <MKButton variant="gradient" color="success" onClick={handleSubmit}>
-                                Save Changes
-                              </MKButton>
-                            </Grid>
-                          </Container>
-                        </MKBox>
-                      </MKBox>
-                    </MKBox>
-                  </MKBox>
-                </MKBox>
-              </MKBox>
-            </MKBox>
-          </MKBox>
+      <MKTypography variant="h4" fontWeight="bold" mb={3}>
+        Edit Profile
+      </MKTypography>
+
+      <MKBox component="form" onSubmit={handleSubmit}>
+        {/* Full Name */}
+        <MKBox mb={2}>
+          <MKTypography variant="body2" color="text">
+            Full Name
+          </MKTypography>
+          <MKInput
+            type="text"
+            fullWidth
+            value={profileData.fullName}
+            onChange={handleChange("fullName")}
+          />
+        </MKBox>
+
+        {/* Address */}
+        <MKBox mb={2}>
+          <MKTypography variant="body2" color="text">
+            Address
+          </MKTypography>
+          <MKInput
+            type="text"
+            fullWidth
+            value={profileData.address}
+            onChange={handleChange("address")}
+          />
+        </MKBox>
+
+        {/* Address Line 2 */}
+        <MKBox mb={2}>
+          <MKTypography variant="body2" color="text">
+            Address Line 2
+          </MKTypography>
+          <MKInput
+            type="text"
+            fullWidth
+            value={profileData.addressTwo}
+            onChange={handleChange("addressTwo")}
+          />
+        </MKBox>
+
+        {/* City */}
+        <MKBox mb={2}>
+          <MKTypography variant="body2" color="text">
+            City
+          </MKTypography>
+          <MKInput type="text" fullWidth value={profileData.city} onChange={handleChange("city")} />
+        </MKBox>
+
+        {/* State Dropdown */}
+        <MKBox mb={2}>
+          <MKTypography variant="body2" color="text">
+            State
+          </MKTypography>
+          <Select
+            options={states}
+            value={states.find((s) => s.value === profileData.state)} // Prepopulate from userprofile
+            onChange={handleStateChange}
+            placeholder="Select State"
+            styles={customSelectStyles}
+          />
+        </MKBox>
+
+        {/* ZIP Code */}
+        <MKBox mb={2}>
+          <MKTypography variant="body2" color="text">
+            ZIP Code
+          </MKTypography>
+          <MKInput
+            type="text"
+            fullWidth
+            value={profileData.zipCode}
+            onChange={handleChange("zipCode")}
+          />
+        </MKBox>
+
+        {/* Skills */}
+        <MKBox mb={2}>
+          <MKTypography variant="body2" color="text">
+            Skills
+          </MKTypography>
+          <Select
+            isMulti
+            options={[
+              { value: "Cooking", label: "Cooking" },
+              { value: "Gardening", label: "Gardening" },
+              { value: "Building", label: "Building" },
+            ]}
+            value={profileData.skills.map((skill) => ({ value: skill, label: skill }))}
+            onChange={(selected) =>
+              setProfileData((prev) => ({ ...prev, skills: selected.map((s) => s.value) }))
+            }
+            placeholder="Select Skills"
+            styles={customSelectStyles}
+          />
+        </MKBox>
+
+        {/* Preferences */}
+        <MKBox mb={2}>
+          <MKTypography variant="body2" color="text">
+            Preferences
+          </MKTypography>
+          <MKInput
+            type="text"
+            fullWidth
+            value={(profileData.preferences || []).join(", ")}
+            onChange={(e) =>
+              setProfileData((prev) => ({
+                ...prev,
+                preferences: e.target.value.split(",").map((p) => p.trim()),
+              }))
+            }
+          />
+        </MKBox>
+
+        {/* Availability */}
+        <MKBox mb={2}>
+          <MKTypography variant="body2" color="text">
+            Availability
+          </MKTypography>
+          <DatePicker
+            multiple
+            value={profileData.availability}
+            onChange={handleDateChange}
+            format="YYYY-MM-DD"
+          />
+        </MKBox>
+
+        {/* Submit Button */}
+        <MKBox mt={3} textAlign="center">
+          <MKButton type="submit" variant="gradient" color="info">
+            Save Changes
+          </MKButton>
         </MKBox>
       </MKBox>
     </MKBox>
