@@ -125,6 +125,24 @@ const VolunteerHistory = () => {
     setOpenSkillsDialog(false); // Close the skills dialog
   };
 
+  const handleDownloadPDF = () => {
+    // Fetch the PDF from the backend
+    fetch("http://localhost:5000/api/volunteerHistoryPDF", {
+      method: "GET",
+    })
+      .then((response) => response.blob()) // Get the response as a blob (PDF file)
+      .then((blob) => {
+        // Create a URL for the blob and download it
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "volunteer_history.pdf"; // Name for the downloaded file
+        link.click();
+      })
+      .catch((error) => {
+        console.error("Error downloading PDF:", error);
+      });
+  };
+
   useEffect(() => {
     const fetchVolunteerHistory = async () => {
       try {
@@ -177,6 +195,7 @@ const VolunteerHistory = () => {
                 fullWidth
               />
             </Grid>
+
             <Grid item xs={12}>
               <div style={{ height: 400, width: "100%" }}>
                 <DataGrid
@@ -187,6 +206,21 @@ const VolunteerHistory = () => {
                   checkboxSelection // Adds checkboxes to rows
                 />
               </div>
+            </Grid>
+
+            {/* Button to download PDF below the table */}
+            <Grid item xs={12}>
+              <Button
+                variant="gradient"
+                color="dark"
+                onClick={handleDownloadPDF}
+                fullWidth
+                sx={{
+                  color: "white", // Make the button text white
+                }}
+              >
+                Download PDF
+              </Button>
             </Grid>
           </Grid>
         </MKBox>
