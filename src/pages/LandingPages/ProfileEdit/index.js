@@ -157,7 +157,7 @@ function ProfileEdit() {
     axios
       .get("http://localhost:5000/api/states")
       .then((response) => {
-        setStates(response.data); // Save the state codes in the states array
+        setStates(response.data);
       })
       .catch((error) => {
         console.error("Errr fetching states:", error);
