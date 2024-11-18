@@ -50,7 +50,6 @@ const statesRoutes = require("./src/routes/state");
 const profileDBRoutes = require("./src/routes/profileRoutes");
 const volunteerHistoryPDFRoutes = require("./src/routes/volunteerHistoryPDF");
 
-
 // Use API routes
 app.use("/api/login", loginRoutes);
 app.use("/api/user_registration", userRegistrationRoutes);
@@ -60,7 +59,6 @@ app.use("/api/volunteerHistory", volunteerHistoryRoutes);
 app.use("/api/profileData", profileRoutes);
 app.use("/api/event", eventRoutes);
 app.use("/api/volunteerHistoryPDF", volunteerHistoryPDFRoutes);
-
 
 app.use("/api", statesRoutes);
 app.use("/api/profileEdit", profileDBRoutes);
