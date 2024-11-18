@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 // @mui material components
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
 
 // Material Kit 2 React components
 import MKBox from "components/MKBox";
@@ -21,23 +24,51 @@ import hhlogo from "assets/images/hhlogo.png";
 
 import axios from "axios";
 
-// Fetch active events function (assuming the backend is set up)
+// Fetch active events function
 async function fetchActiveEvents() {
   try {
     const response = await axios.get("http://localhost:5000/api/event/active");
-
-    const data = response.data;
-
-    return data;
+    return response.data;
   } catch (error) {
-    // Log any errors encountered
     console.error("Error fetching active events:", error);
-
     return [];
   }
 }
+
+// Fetch volunteer users function
+async function fetchUsers() {
+  try {
+    const response = await axios.get("http://localhost:5000/api/profileEdit/volunteer");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
+  }
+}
+
+// Fetch admin users function
+async function fetchAdmin() {
+  try {
+    const response = await axios.get("http://localhost:5000/api/profileEdit/admin");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
+  }
+}
+
+const formatArray = (value) => {
+  return Array.isArray(value) ? value.join(", ") : "N/A";
+};
+
 function Presentation() {
   const [events, setEvents] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [admins, setAdmins] = useState([]);
+  const [showVolunteers, setShowVolunteers] = useState(false);
+  const [showAdmins, setShowAdmins] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [message, setMessage] = useState("");
 
   const getUrgencyColor = (urgency) => {
     switch (urgency) {
@@ -52,9 +83,29 @@ function Presentation() {
     }
   };
 
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+  };
+
+  const handleClose = () => {
+    setSelectedUser(null);
+    setMessage("");
+  };
+
+  const handleSendMessage = () => {
+    console.log(`Message to ${selectedUser.fullName}: ${message}`);
+    handleClose();
+  };
+
   useEffect(() => {
     fetchActiveEvents().then((data) => {
       setEvents(data);
+    });
+    fetchUsers().then((data) => {
+      setUsers(data);
+    });
+    fetchAdmin().then((data) => {
+      setAdmins(data);
     });
   }, []);
 
@@ -62,7 +113,7 @@ function Presentation() {
     <>
       <DefaultNavbar routes={routes} />
       <MKBox
-        minHeight="75vh"
+        minHeight="90vh"
         width="100%"
         sx={{
           backgroundImage: `url(${bgImage})`,
@@ -72,6 +123,35 @@ function Presentation() {
           placeItems: "center",
         }}
       >
+        {/* Toggle Volunteer List */}
+        <MKBox position="absolute" left="4%" top="50%" transform="translateY(-50%)" zIndex="1000">
+          <Button
+            variant="contained"
+            color="white"
+            onClick={() => {
+              // Close admin list if open
+              setShowAdmins(false);
+              setShowVolunteers((prev) => !prev);
+            }}
+          >
+            {showVolunteers ? "Hide Volunteer List" : "Show Volunteer List"}
+          </Button>
+        </MKBox>
+
+        {/* Toggle Admin List */}
+        <MKBox position="absolute" right="4%" top="50%" transform="translateY(-50%)" zIndex="1000">
+          <Button
+            variant="contained"
+            color="white"
+            onClick={() => {
+              setShowVolunteers(false);
+              setShowAdmins((prev) => !prev);
+            }}
+          >
+            {showAdmins ? "Hide Admin List" : "Show Admin List"}
+          </Button>
+        </MKBox>
+
         <Container>
           <Grid container item xs={12} lg={7} justifyContent="center" mx="auto">
             <MKBox display="flex" alignItems="center" justifyContent="center" mt={-6} mb={1}>
@@ -108,7 +188,7 @@ function Presentation() {
             </MKTypography>
           </Grid>
 
-          {/* Display each active event */}
+          {/* Display active events */}
           <MKBox
             bgColor="white"
             borderRadius="xl"
@@ -116,8 +196,8 @@ function Presentation() {
             display="flex"
             flexDirection="row"
             justifyContent="left"
-            mt={{ xs: 20, sm: 18, md: 5 }}
-            mb={{ xs: 20, sm: 18, md: -10 }}
+            mt={{ xs: 20, sm: 18, md: 3 }}
+            mb={{ xs: 20, sm: 18, md: 0 }}
             mx={2}
             flexWrap="wrap"
           >
@@ -160,9 +240,179 @@ function Presentation() {
               </MKBox>
             ))}
           </MKBox>
+
+          {/* Collapsible user profiles (Volunteers) */}
+          {showVolunteers && (
+            <MKBox
+              bgColor="white"
+              borderRadius="xl"
+              shadow="lg"
+              display="flex"
+              flexDirection="row"
+              justifyContent="left"
+              mt={3}
+              mx={2}
+              flexWrap="wrap"
+            >
+              {users.map((user) => (
+                <MKBox
+                  key={user.user_id}
+                  bgColor="white"
+                  borderRadius="xl"
+                  shadow="lg"
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="center"
+                  p={3}
+                  mx={1}
+                  my={1}
+                  width="250px"
+                  height="150px"
+                  onClick={() => handleUserClick(user)}
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { backgroundColor: "#f0f0f0" },
+                  }}
+                >
+                  <MKTypography variant="h6" color="textPrimary" textAlign="center" p={-5}>
+                    Name: {user.fullName}
+                  </MKTypography>
+                  <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                    Skills: {formatArray(user.skills)}
+                  </MKTypography>
+                  <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                    Availability: {formatArray(user.availability)}
+                  </MKTypography>
+                  <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                    Preferences: {user.preferences ? user.preferences : "N/A"}
+                  </MKTypography>
+                </MKBox>
+              ))}
+            </MKBox>
+          )}
+
+          {/* Collapsible user profiles (Admins) */}
+          {showAdmins && (
+            <MKBox
+              bgColor="white"
+              borderRadius="xl"
+              shadow="lg"
+              display="flex"
+              flexDirection="row"
+              justifyContent="left"
+              mt={3}
+              mx={2}
+              flexWrap="wrap"
+            >
+              {admins.map((admin) => (
+                <MKBox
+                  key={admin.user_id}
+                  bgColor="white"
+                  borderRadius="xl"
+                  shadow="lg"
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="center"
+                  p={3}
+                  mx={1}
+                  my={1}
+                  width="250px"
+                  height="150px"
+                  onClick={() => handleUserClick(admin)}
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { backgroundColor: "#f0f0f0" },
+                  }}
+                >
+                  <MKTypography variant="h6" color="textPrimary" textAlign="center" p={-5}>
+                    Name: {admin.fullName}
+                  </MKTypography>
+                  <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                    Skills: {formatArray(admin.skills)}
+                  </MKTypography>
+                  <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                    Availability: {formatArray(admin.availability)}
+                  </MKTypography>
+                  <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                    Preferences: {admin.preferences ? admin.preferences : "N/A"}
+                  </MKTypography>
+                </MKBox>
+              ))}
+            </MKBox>
+          )}
         </Container>
       </MKBox>
-      <MKBox pt={6} px={1} mt={6}>
+
+      {/* Modal for sending a notification */}
+      {selectedUser && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          width="100%"
+          height="100%"
+          bgcolor="rgba(0,0,0,0.5)"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          zIndex={1200}
+          onClick={handleClose}
+        >
+          <Box
+            width="300px"
+            bgcolor="white"
+            borderRadius="8px"
+            p={3}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MKTypography variant="h6" textAlign="center" mb={2} color="black">
+              Send Notification to {selectedUser.fullName}
+            </MKTypography>
+            <TextField
+              fullWidth
+              label="Notification Message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              multiline
+              rows={4}
+              variant="outlined"
+              InputLabelProps={{
+                style: { color: "black" },
+              }}
+              InputProps={{
+                style: { color: "black" },
+              }}
+              sx={{
+                "& .MuiInputLabel-root": {
+                  color: "black",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "black",
+                },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "black",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "black",
+                  },
+                },
+              }}
+            />
+            <Button
+              fullWidth
+              variant="contained"
+              color="white"
+              sx={{ mt: 2 }}
+              onClick={handleSendMessage}
+            >
+              Send Message
+            </Button>
+          </Box>
+        </Box>
+      )}
+
+      <MKBox pt={6} px={1} mt={-1.5}>
         <DefaultFooter content={footerRoutes} />
       </MKBox>
     </>

@@ -1,39 +1,20 @@
 const express = require("express");
 const router = express.Router();
-
-// Sample data to simulate a database
-const volunteerHistory = [
-  {
-    name: "Volunteer 1",
-    event: "Event 1",
-    date: "2024-01-01",
-    status: "Completed",
-    duration: 5,
-    location: "Location A",
-    skills: "Skill A",
-    urgency: "Low",
-    description: "Description for Event 1",
-  },
-  {
-    name: "Volunteer 2",
-    event: "Event 2",
-    date: "2024-02-01",
-    status: "In Progress",
-    duration: 3,
-    location: "Location B",
-    skills: "Skill B",
-    urgency: "Medium",
-    description: "Description for Event 2",
-  },
-];
+const db = require("../db"); // Import the database connection
 
 // Route to get all volunteer history
-router.get("/", (req, res) => {
-  res.json(volunteerHistory);
+router.get("/", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM VolunteerHistory"); // Use await to fetch the data
+    res.json(results); // Send the results back as JSON
+  } catch (err) {
+    console.error("Error retrieving volunteer history:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 // Route to add a new volunteer entry (optional)
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { name, event, date, status, duration, location, skills, urgency, description } = req.body;
 
   if (!name || !event || !date) {
@@ -41,19 +22,26 @@ router.post("/", (req, res) => {
   }
 
   const newEntry = {
-    name,
-    event,
-    date,
-    status,
-    duration,
-    location,
-    skills,
-    urgency,
-    description,
+    volunteer_name: name,
+    event_name: event,
+    event_date: date,
+    participation_status: status,
+    duration_hours: duration,
+    location: location,
+    required_skills: JSON.stringify(skills), // Store JSON as a string
+    urgency: urgency,
+    event_description: description,
   };
 
-  volunteerHistory.push(newEntry);
-  res.status(201).json({ message: "Volunteer entry added successfully!", entry: newEntry });
+  const query = "INSERT INTO VolunteerHistory SET ?";
+
+  try {
+    const [result] = await db.query(query, newEntry); // Use await to insert data
+    res.status(201).json({ message: "Volunteer entry added successfully!", entry: newEntry });
+  } catch (err) {
+    console.error("Error inserting new volunteer entry:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 module.exports = router;
