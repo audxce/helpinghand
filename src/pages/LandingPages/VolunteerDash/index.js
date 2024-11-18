@@ -1,26 +1,54 @@
-import * as React from "react";
-import MediaCard from "./MediaCard"; // Assuming MediaCard is defined in a separate file
-// @mui material components
+import React, { useEffect, useState, useRef } from "react";
+import axios from "axios";
+import MediaCardList from "./MediaCard"; // Import MediaCardList component
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-
-// Material Kit 2 React components
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
-
-// Material Kit 2 React examples
 import DefaultFooter from "examples/Footers/SimpleFooter";
 import DefaultNavbar from "examples/Navbars/DefaultNavbar";
-
-// Routes
 import footerRoutes from "footer.routes";
 import routes from "routes.volunteer";
-
-// Images
 import bgImage from "assets/images/hh-bg.jpg";
 import hhlogo from "assets/images/hhlogo.png";
+import IconButton from "@mui/material/IconButton";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { useNavigate } from "react-router-dom";
 
 function Presentation() {
+  const navigate = useNavigate(); // Create a history object for navigation
+  const [cardsData, setCardsData] = useState([]);
+  const hasFetchedData = useRef(false);
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!hasFetchedData.current) {
+        try {
+          const response = await axios.get("http://localhost:5000/api/volunteerdashboard/");
+          setCardsData(response.data);
+          hasFetchedData.current = true;
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          // Fallback data
+          setCardsData([
+            {
+              id: 1,
+              image: "",
+              title: "Test Event 1",
+              description: "This is a test description for event 1.",
+              location: "Test Location 1",
+              startTime: "10:00 AM",
+              endTime: "12:00 PM",
+              skills: ["Skill A", "Skill B"],
+            },
+            // Add other fallback data as needed
+          ]);
+        }
+      }
+    }
+    fetchData();
+  }, []);
+
   return (
     <>
       <DefaultNavbar routes={routes} />
@@ -31,6 +59,7 @@ function Presentation() {
           backgroundImage: `url(${bgImage})`,
           backgroundSize: "cover",
           backgroundPosition: "top",
+          backgroundAttachment: "fixed",
           display: "flex",
           placeItems: "center",
           justifyContent: "space-between",
@@ -49,17 +78,7 @@ function Presentation() {
                 mr={2}
               />
             </MKBox>
-            <MKTypography
-              variant="h1"
-              color="dark gray"
-              mt={-6}
-              mb={1}
-              sx={({ breakpoints, typography: { size } }) => ({
-                [breakpoints.down("md")]: {
-                  fontSize: size["3xl"],
-                },
-              })}
-            >
+            <MKTypography variant="h1" color="dark gray" mt={-6} mb={1}>
               Welcome to Helping Hands{" "}
             </MKTypography>
             <MKTypography
@@ -79,15 +98,62 @@ function Presentation() {
         bgColor="white"
         shadow="lg"
         display="flex"
-        flexDirection="row"
+        flexDirection="column"
         justifyContent="left"
         mb={{ xs: 20, sm: 18, md: 20 }}
-        width="100%" // Fills the width of the parent container
+        width="100%"
         height="100%"
+        p={5}
       >
-        {/* Replace event boxes with MediaCard components */}
-        <MediaCard />
-        <MediaCard />
+        <MKTypography variant="h4" color="textPrimary" mb={2}>
+          Your Dashboard
+        </MKTypography>
+        <MediaCardList cardsData={cardsData} />
+        <MKBox display="flex" justifyContent="center" alignItems="center" mt={4}>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={4}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                cursor: "pointer",
+                transition: "color 0.3s ease-in-out",
+              }}
+              onClick={() => {
+                navigate("/pages/LandingPages/VolunteerForms"); // Navigate to Volunteer Matching (VolunteerForms)
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = "#004d40"; // Dark teal color
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = "teal"; // Original color
+              }}
+            >
+              <IconButton aria-label="add event">
+                <AddCircleIcon
+                  style={{ fontSize: 50, color: "teal", transition: "color 0.3s ease-in-out" }}
+                />
+              </IconButton>
+              <span
+                style={{
+                  marginLeft: "8px",
+                  color: "teal",
+                  fontSize: "16px",
+                  transition: "color 0.3s ease-in-out",
+                }}
+              >
+                Add Events
+              </span>
+            </div>
+          </Grid>
+        </MKBox>
       </MKBox>
       <MKBox pt={6} px={1} mt={6}>
         <DefaultFooter content={footerRoutes} />

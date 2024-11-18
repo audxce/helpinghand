@@ -48,7 +48,7 @@ const profileRoutes = require("./src/routes/profile");
 const eventRoutes = require("./src/routes/event");
 const statesRoutes = require("./src/routes/state");
 const profileDBRoutes = require("./src/routes/profileRoutes");
-
+const volunteerdashboardRoutes = require("./src/routes/volunteerdashboard");
 // Use API routes
 app.use("/api/login", loginRoutes);
 app.use("/api/user_registration", userRegistrationRoutes);
@@ -60,6 +60,7 @@ app.use("/api/event", eventRoutes);
 
 app.use("/api", statesRoutes);
 app.use("/api/profileEdit", profileDBRoutes);
+app.use("/api/volunteerdashboard", volunteerdashboardRoutes);
 
 // Start server
 app.listen(PORT, () => {

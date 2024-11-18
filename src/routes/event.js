@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const db = require("../db"); // Adjust path if `db.js` is in `src`
+const db = require("../../db"); // Adjust path if `db.js` is in `src`
 
 const router = express.Router();
 
@@ -18,12 +18,17 @@ const convertTo24Hour = (time) => {
   return `${hours}:${minutes}:00`; // Add seconds as '00'
 };
 
+// Removed the serialization from the top level
+// const requiredSkillsSerialized = JSON.stringify(requiredSkills);
+
 // POST route to create or update an event
 router.post("/", async (req, res) => {
+  console.log("Request body received:", req.body); // Log incoming data
+
   const {
     eventName,
     eventDescription,
-    location,
+    state,
     requiredSkills,
     urgency,
     eventDate,
@@ -32,17 +37,35 @@ router.post("/", async (req, res) => {
     repeatEvent,
   } = req.body;
 
+  // Serialize requiredSkills after it's defined
+  const requiredSkillsSerialized = JSON.stringify(requiredSkills);
+
+  console.log("eventName:", eventName);
+  console.log("eventDescription:", eventDescription);
+  console.log("state:", state);
+  console.log("requiredSkills:", requiredSkills);
+  console.log("urgency:", urgency);
+  console.log("eventDate:", eventDate);
+  console.log("startTime:", startTime);
+  console.log("endTime:", endTime);
+  console.log("repeatEvent:", repeatEvent);
+  // Log the incoming request body for debugging
+  console.log("Received POST request with data:", req.body);
+
   // Validation for required fields
   if (
     !eventName ||
     !eventDescription ||
-    !location ||
+    !state ||
     !urgency ||
     !eventDate ||
     !startTime ||
     !endTime ||
-    !repeatEvent
+    !repeatEvent ||
+    !Array.isArray(requiredSkills) || // Check if requiredSkills is an array
+    requiredSkills.length === 0 // Check if array is empty
   ) {
+    console.error("Validation failed - missing required fields");
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -50,9 +73,11 @@ router.post("/", async (req, res) => {
   const validRepeatEvent = ["None", "Daily", "Weekly", "Monthly"];
 
   if (!validUrgency.includes(urgency)) {
+    console.error("Validation failed - invalid urgency level:", urgency);
     return res.status(400).json({ message: "Invalid urgency level." });
   }
   if (!validRepeatEvent.includes(repeatEvent)) {
+    console.error("Validation failed - invalid repeat event value:", repeatEvent);
     return res.status(400).json({ message: "Invalid repeat event value." });
   }
 
@@ -61,18 +86,20 @@ router.post("/", async (req, res) => {
 
   try {
     // Check if the event already exists in the database
+    console.log("Checking if event exists in the database...");
     const [existingEvent] = await db.query("SELECT * FROM EventDetails WHERE eventName = ?", [
       eventName,
     ]);
 
     if (existingEvent.length > 0) {
       // Update the existing event if it exists
+      console.log("Event found. Updating existing event...");
       await db.query(
-        `UPDATE EventDetails SET eventDescription = ?, location = ?, requiredSkills = ?, urgency = ?, eventDate = ?, startTime = ?, endTime = ?, repeatEvent = ? WHERE eventName = ?`,
+        `UPDATE EventDetails SET eventDescription = ?, state = ?, requiredSkills = ?, urgency = ?, eventDate = ?, startTime = ?, endTime = ?, repeatEvent = ? WHERE eventName = ?`,
         [
           eventDescription,
-          location,
-          requiredSkills,
+          state,
+          requiredSkillsSerialized, // Use serialized string here
           urgency,
           eventDate,
           formattedStartTime,
@@ -81,16 +108,18 @@ router.post("/", async (req, res) => {
           eventName,
         ]
       );
+      console.log("Event updated successfully.");
       res.status(200).json({ message: "Event updated successfully!" });
     } else {
       // Insert a new event if it doesn’t exist
+      console.log("Event not found. Creating new event...");
       await db.query(
-        `INSERT INTO EventDetails (eventName, eventDescription, location, requiredSkills, urgency, eventDate, startTime, endTime, repeatEvent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO EventDetails (eventName, eventDescription, state, requiredSkills, urgency, eventDate, startTime, endTime, repeatEvent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           eventName,
           eventDescription,
-          location,
-          requiredSkills,
+          state,
+          requiredSkillsSerialized, // Use serialized string here
           urgency,
           eventDate,
           formattedStartTime,
@@ -98,42 +127,68 @@ router.post("/", async (req, res) => {
           repeatEvent,
         ]
       );
+      console.log("Event created successfully.");
       res.status(201).json({ message: "Event created successfully!" });
     }
   } catch (error) {
     console.error("Database error:", error);
-    res.status(500).json({ message: "An error occurred while saving the event." });
+    if (error.sqlMessage) {
+      console.error("SQL Message:", error.sqlMessage); // Log SQL-specific errors if they exist
+    }
+    res
+      .status(500)
+      .json({ message: "An error occurred while saving the event.", error: error.message });
   }
 });
 
 // GET route to fetch all events
 router.get("/", async (req, res) => {
   try {
+    console.log("Fetching all events from the database...");
     const [events] = await db.query("SELECT * FROM EventDetails");
-
+    console.log("Events fetched:", events);
     res.status(200).json(events);
   } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ message: "An error occurred while fetching events." });
+    console.error("Database error while fetching events:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching events.", error: error.message });
   }
 });
 
+// GET route to fetch active events
 router.get("/active", async (req, res) => {
   try {
-    // Query for events where activeEvent is 1 (active)
+    console.log("Fetching active events from the database...");
     const [events] = await db.query("SELECT * FROM EventDetails WHERE activeEvent = 1");
 
     // Check if events are found
     if (events.length === 0) {
+      console.log("No active events found.");
       return res.status(404).json({ message: "No active events found." });
     }
 
-    // Send the active events as a response
+    // Deserialize the requiredSkills field
+    events.forEach((event) => {
+      if (event.requiredSkills) {
+        try {
+          event.requiredSkills = JSON.parse(event.requiredSkills);
+        } catch (parseError) {
+          console.error(`Error parsing requiredSkills for event ${event.eventName}:`, parseError);
+          event.requiredSkills = []; // Default to an empty array if parsing fails
+        }
+      } else {
+        event.requiredSkills = []; // Ensure it's an array even if null or undefined
+      }
+    });
+
+    console.log("Active events fetched:", events);
     res.status(200).json(events);
   } catch (error) {
-    // Handle database or any other errors
-    console.error("Database error:", error);
-    res.status(500).json({ message: "An error occurred while fetching active events." });
+    console.error("Database error while fetching active events:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching active events.", error: error.message });
   }
 });
 

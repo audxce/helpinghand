@@ -34,11 +34,65 @@ const timeOptions = [
   "5:00 PM",
 ];
 
+// List of state abbreviations
+const stateOptions = [
+  "AL",
+  "AK",
+  "AZ",
+  "AR",
+  "CA",
+  "CO",
+  "CT",
+  "DE",
+  "FL",
+  "GA",
+  "HI",
+  "ID",
+  "IL",
+  "IN",
+  "IA",
+  "KS",
+  "KY",
+  "LA",
+  "ME",
+  "MD",
+  "MA",
+  "MI",
+  "MN",
+  "MS",
+  "MO",
+  "MT",
+  "NE",
+  "NV",
+  "NH",
+  "NJ",
+  "NM",
+  "NY",
+  "NC",
+  "ND",
+  "OH",
+  "OK",
+  "OR",
+  "PA",
+  "RI",
+  "SC",
+  "SD",
+  "TN",
+  "TX",
+  "UT",
+  "VT",
+  "VA",
+  "WA",
+  "WV",
+  "WI",
+  "WY",
+];
+
 function Event() {
   const [formData, setFormData] = useState({
     eventName: "",
     eventDescription: "",
-    location: "",
+    state: "",
     requiredSkills: [],
     urgency: "",
     eventDate: new Date(),
@@ -71,6 +125,7 @@ function Event() {
       ...formData,
       eventDate: formattedDate, // Use the formatted date
     };
+    console.log("Form Data to Send:", formDataToSend); // Add this line to log form data before the request
 
     try {
       const response = await axios.post("http://localhost:5000/api/event", formDataToSend); // Send form data to your backend
@@ -153,7 +208,6 @@ function Event() {
                       }}
                     />
                   </Grid>
-
                   {/* Event Description */}
                   <Grid item xs={12}>
                     <MKInput
@@ -168,20 +222,30 @@ function Event() {
                       fullWidth
                     />
                   </Grid>
-
-                  {/* Location */}
                   <Grid item xs={12}>
-                    <MKInput
-                      variant="standard"
-                      label="Location"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      required
-                      fullWidth
-                    />
+                    <Select
+                      name="state"
+                      value={formData.state} // Binds the value to formData
+                      onChange={handleChange} // Updates the formData when a new state is selected
+                      displayEmpty
+                      IconComponent={() => <Icon>expand_more</Icon>}
+                      sx={{
+                        backgroundColor: "transparent",
+                        border: "none",
+                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                        "&:focus": { outline: "none" },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        Select State
+                      </MenuItem>
+                      {stateOptions.map((state) => (
+                        <MenuItem key={state} value={state}>
+                          {state}
+                        </MenuItem>
+                      ))}
+                    </Select>
                   </Grid>
-
                   <Grid item xs={10}>
                     {/* Date Picker with adjusted font size */}
                     <label style={{ fontSize: "20px", marginBottom: "8px", display: "block" }}>
@@ -204,7 +268,6 @@ function Event() {
                       />
                     </MKBox>
                   </Grid>
-
                   {/* Time and Repeatability */}
                   <Grid container item xs={12} spacing={2} alignItems="center">
                     {/* Start Time */}
@@ -286,7 +349,6 @@ function Event() {
                       </Select>
                     </Grid>
                   </Grid>
-
                   <Grid item xs={12}>
                     <MKTypography variant="body1" sx={{ marginBottom: "8px" }}>
                       Required Skills
@@ -318,7 +380,6 @@ function Event() {
                       ))}
                     </FormGroup>
                   </Grid>
-
                   <Grid item xs={3}>
                     <Select
                       name="urgency"
