@@ -8,6 +8,8 @@ import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import hhlogo from "assets/images/hhlogo.png";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete"; // Import the Delete icon
 
 // Function to generate a random color from a list
 const getRandomColor = () => {
@@ -35,52 +37,52 @@ export default function MediaCardList() {
             {
               id: 1,
               image: "",
-              title: "Test Event 1",
-              description: "This is a test description for event 1.",
-              location: "Test Location 1",
+              eventName: "Test Event 1",
+              eventDescription: "This is a test eventDescription for event 1.",
+              state: "Test Location 1",
               startTime: "10:00 AM",
               endTime: "12:00 PM",
-              skills: ["Skill A", "Skill B"],
+              requiredSkills: ["Skill A", "Skill B"],
             },
             {
               id: 2,
               image: "",
-              title: "Test Event 2",
-              description: "This is a test description for event 2.",
-              location: "Test Location 2",
+              eventName: "Test Event 2",
+              eventDescription: "This is a test eventDescription for event 2.",
+              state: "Test Location 2",
               startTime: "2:00 PM",
               endTime: "4:00 PM",
-              skills: ["Skill C", "Skill D"],
+              requiredSkills: ["Skill C", "Skill D"],
             },
             {
               id: 3,
               image: "",
-              title: "Test Event 3",
-              description: "This is a test description for event 3.",
-              location: "Test Location 3",
+              eventName: "Test Event 3",
+              eventDescription: "This is a test eventDescription for event 3.",
+              state: "Test Location 3",
               startTime: "5:00 PM",
               endTime: "7:00 PM",
-              skills: ["Skill E", "Skill F"],
+              requiredSkills: ["Skill E", "Skill F"],
             },
             {
               id: 4,
               image: "",
-              title: "Test Event 4",
-              description: "This is a test description for event 4.",
-              location: "Test Location 4",
+              eventName: "Test Event 4",
+              eventDescription: "This is a test eventDescription for event 4.",
+              state: "Test Location 4",
               startTime: "8:00 PM",
               endTime: "10:00 PM",
-              skills: ["Skill G", "Skill H"],
+              requiredSkills: ["Skill G", "Skill H"],
             },
             {
               id: 5,
               image: "",
-              title: "Test Event 5",
-              description: "This is a test description for event 5.",
-              location: "Test Location 5",
+              eventName: "Test Event 5",
+              eventDescription: "This is a test eventDescription for event 5.",
+              state: "Test Location 5",
               startTime: "8:00 PM",
               endTime: "10:00 PM",
-              skills: ["Skill J", "Skill K"],
+              requiredSkills: ["Skill J", "Skill K"],
             },
           ]);
         } finally {
@@ -106,26 +108,61 @@ export default function MediaCardList() {
         <MediaCard
           key={card.id}
           image={card.image}
-          title={card.title}
-          description={card.description}
-          location={card.location}
+          eventName={card.eventName}
+          eventDescription={card.eventDescription}
+          state={card.state}
           startTime={card.startTime}
           endTime={card.endTime}
-          skills={card.skills}
+          requiredSkills={card.requiredSkills}
         />
       ))}
     </div>
   );
 }
 
-function MediaCard({ image, title, description, location, startTime, endTime, skills }) {
+function formatTimeToStandard(time) {
+  // Split the input string (assuming format "HH:MM:SS")
+  const [hours, minutes] = time.split(":");
+
+  // Convert hours from string to number for calculations
+  let hour = parseInt(hours, 10);
+  const suffix = hour >= 12 ? "PM" : "AM"; // Determine AM/PM
+
+  // Convert hour to 12-hour format
+  hour = hour % 12 || 12; // Handle 12 PM and 12 AM correctly
+
+  // Return formatted string
+  return `${hour}:${minutes} ${suffix}`;
+}
+
+function MediaCard({
+  image,
+  eventName,
+  eventDescription,
+  state,
+  startTime,
+  endTime,
+  requiredSkills,
+}) {
   const randomColor = getRandomColor();
+
+  // Parse `requiredSkills` if it's a string
+  let skillsArray = [];
+  if (typeof requiredSkills === "string") {
+    try {
+      skillsArray = JSON.parse(requiredSkills); // Attempt to parse the string
+    } catch (error) {
+      console.error("Error parsing requiredSkills:", error);
+    }
+  } else if (Array.isArray(requiredSkills)) {
+    skillsArray = requiredSkills; // If it's already an array, use it directly
+  }
 
   return (
     <Card
       sx={{
-        flexGrow: 0,
-        maxWidth: 345,
+        width: 345, // Set a fixed width
+        height: 350, // Set a fixed height
         m: 2,
         boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.5)",
         borderRadius: "16px",
@@ -135,45 +172,51 @@ function MediaCard({ image, title, description, location, startTime, endTime, sk
           transform: "scale(1.1)",
           boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.3)",
         },
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between", // Ensure content is spaced out within the card
       }}
     >
       <div
         style={{
           backgroundColor: randomColor,
           width: "100%",
+          height: 140, // Fixed height for the media container
           display: "flex",
           justifyContent: "center",
+          alignItems: "center", // Center content vertically
           borderTopLeftRadius: "16px",
           borderTopRightRadius: "16px",
-          borderBottomLeftRadius: "0px",
-          borderBottomRightRadius: "0px",
         }}
       >
         <CardMedia
           sx={{
-            height: 140,
-            objectFit: "scale-down",
-            width: "50%",
-            alignSelf: "center",
+            height: "100%", // Make it fill the container height
+            objectFit: "contain",
+            width: "auto", // Maintain aspect ratio
           }}
           image={image ? image : hhlogo}
-          title={title}
+          eventName={eventName}
         />
       </div>
 
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
-          {title}
+      <CardContent sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+        <Typography gutterBottom variant="h5" component="div" noWrap>
+          {eventName}
         </Typography>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          {description}
+        <Typography
+          variant="body2"
+          sx={{ color: "text.secondary", overflow: "hidden", textOverflow: "ellipsis" }}
+          noWrap
+        >
+          {eventDescription}
         </Typography>
       </CardContent>
 
       <CardActions
         sx={{
-          position: "absolute",
-          bottom: 48,
+          position: "relative",
+          bottom: 0,
           left: 8,
           display: "flex",
           alignItems: "center",
@@ -182,16 +225,23 @@ function MediaCard({ image, title, description, location, startTime, endTime, sk
       >
         <LocationOnIcon sx={{ fontSize: 18, color: "text.secondary" }} />
         <Typography variant="caption" sx={{ color: "text.secondary", marginRight: "8px" }}>
-          {location}
+          {state}
         </Typography>
         <Typography variant="caption" sx={{ color: "text.secondary" }}>
-          {startTime} - {endTime}
+          {formatTimeToStandard(startTime)} - {formatTimeToStandard(endTime)}
         </Typography>
       </CardActions>
 
-      <div style={{ marginTop: "10px", paddingLeft: "16px", paddingBottom: "16px" }}>
-        {skills &&
-          skills.map((skill, index) => (
+      <div
+        style={{
+          marginTop: "10px",
+          paddingLeft: "16px",
+          paddingBottom: "16px",
+          overflow: "hidden",
+        }}
+      >
+        {skillsArray.length > 0 ? (
+          skillsArray.map((skill, index) => (
             <Typography
               key={index}
               variant="caption"
@@ -203,22 +253,63 @@ function MediaCard({ image, title, description, location, startTime, endTime, sk
                 marginRight: "8px",
                 marginBottom: "4px",
                 color: "#000",
+                overflow: "hidden", // Prevent text overflow
+                textOverflow: "ellipsis",
               }}
             >
               {skill}
             </Typography>
-          ))}
+          ))
+        ) : (
+          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+            No skills listed
+          </Typography>
+        )}
       </div>
+      <CardActions
+        sx={{
+          position: "relative",
+          bottom: 0,
+          right: 0,
+          display: "flex",
+          justifyContent: "flex-end", // Align to the right
+          marginRight: 2,
+          marginBottom: 1,
+        }}
+      >
+        <IconButton
+          aria-label="delete"
+          color="error"
+          sx={{
+            "&:hover": {
+              color: "darkred", // Optional: Add hover color change
+            },
+          }}
+          onClick={() => {
+            const confirmed = window.confirm("Are you sure you want to delete this event?");
+            if (confirmed) {
+              // Logic to remove the item from the dashboard
+              console.log(`Event deleted: ${eventName}`);
+              // Assuming you have a function or state management to handle card removal
+              // Example function: handleDelete(eventName);
+            } else {
+              console.log("Deletion cancelled");
+            }
+          }}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </CardActions>
     </Card>
   );
 }
 
 MediaCard.propTypes = {
   image: PropTypes.string,
-  title: PropTypes.string,
-  description: PropTypes.string,
-  location: PropTypes.string,
+  eventName: PropTypes.string,
+  eventDescription: PropTypes.string,
+  state: PropTypes.string,
   startTime: PropTypes.string,
   endTime: PropTypes.string,
-  skills: PropTypes.arrayOf(PropTypes.string),
+  requiredSkills: PropTypes.arrayOf(PropTypes.string),
 };

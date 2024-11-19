@@ -39,7 +39,7 @@ function Presentation() {
               location: "Test Location 1",
               startTime: "10:00 AM",
               endTime: "12:00 PM",
-              skills: ["Skill A", "Skill B"],
+              requiredSkills: ["Skill A", "Skill B"],
             },
             // Add other fallback data as needed
           ]);
