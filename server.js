@@ -49,6 +49,7 @@ const statesRoutes = require("./src/routes/states");
 const profileRoutes = require("./src/routes/profile"); // Combined profile file
 const sessionCheckRoutes = require("./src/routes/sessioncheck");
 const volunteerHistoryPDFRoutes = require("./src/routes/volunteerHistoryPDF");
+const logoutRoutes = require("./src/routes/logout"); // Import logout route
 
 // Use API routes
 app.use("/api/login", loginRoutes);
@@ -61,6 +62,7 @@ app.use("/api/states", statesRoutes);
 app.use("/api/profile", profileRoutes); // Register the combined profile.js
 app.use("/api", sessionCheckRoutes);
 app.use("/api/volunteerHistoryPDF", volunteerHistoryPDFRoutes);
+app.use("/api/logout", logoutRoutes); // Register the logout route
 
 // Start server
 app.listen(PORT, () => {
