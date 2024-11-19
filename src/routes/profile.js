@@ -37,7 +37,7 @@ router.get("/volunteer", async (req, res) => {
       availability: user.availability,
     }));
 
-    console.log(users);
+    //console.log(users);
     res.json(users);
   } catch (error) {
     console.error("Database error:", error);
@@ -72,7 +72,7 @@ router.get("/admin", async (req, res) => {
       availability: user.availability,
     }));
 
-    console.log(users);
+   // console.log(users);
     res.json(users);
   } catch (error) {
     console.error("Database error:", error);

@@ -208,16 +208,24 @@ function Presentation() {
                 borderRadius="xl"
                 shadow="lg"
                 display="flex"
+                width="350px"
+                height="200px"
                 flexDirection="column"
                 justifyContent="center"
-                p={5}
+                p={2}
                 mx={2}
                 my={2}
               >
                 <MKTypography variant="h6" color="textPrimary" textAlign="center" p={-5}>
                   {event.eventName}
                 </MKTypography>
-                <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                <MKTypography
+                  variant="body2"
+                  color="textSecondary"
+                  textAlign="center"
+                  p={-5}
+                  sx={{ fontSize: "15px" }}
+                >
                   {event.eventDescription}
                 </MKTypography>
                 <MKTypography
@@ -234,7 +242,13 @@ function Presentation() {
                 <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
                   Location: {event.state}
                 </MKTypography>
-                <MKTypography variant="body2" color="textSecondary" textAlign="center" p={-5}>
+                <MKTypography
+                  variant="body2"
+                  color="textSecondary"
+                  textAlign="center"
+                  p={-5}
+                  sx={{ fontSize: "15px" }}
+                >
                   Skills Needed: {event.requiredSkills}
                 </MKTypography>
               </MKBox>
