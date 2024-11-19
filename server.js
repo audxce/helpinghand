@@ -48,6 +48,7 @@ const eventRoutes = require("./src/routes/event");
 const statesRoutes = require("./src/routes/states");
 const profileRoutes = require("./src/routes/profile"); // Combined profile file
 const sessionCheckRoutes = require("./src/routes/sessioncheck");
+const volunteerHistoryPDFRoutes = require("./src/routes/volunteerHistoryPDF");
 
 // Use API routes
 app.use("/api/login", loginRoutes);
@@ -59,6 +60,7 @@ app.use("/api/event", eventRoutes);
 app.use("/api/states", statesRoutes);
 app.use("/api/profile", profileRoutes); // Register the combined profile.js
 app.use("/api", sessionCheckRoutes);
+app.use("/api/volunteerHistoryPDF", volunteerHistoryPDFRoutes);
 
 // Start server
 app.listen(PORT, () => {

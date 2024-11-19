@@ -125,6 +125,67 @@ const VolunteerHistory = () => {
     setOpenSkillsDialog(false); // Close the skills dialog
   };
 
+  const handleDownloadPDF = () => {
+    // Fetch the PDF from the backend
+    fetch("http://localhost:5000/api/volunteerHistoryPDF", {
+      method: "GET",
+    })
+      .then((response) => response.blob()) // Get the response as a blob (PDF file)
+      .then((blob) => {
+        // Create a URL for the blob and download it
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "volunteer_history.pdf"; // Name for the downloaded file
+        link.click();
+      })
+      .catch((error) => {
+        console.error("Error downloading PDF:", error);
+      });
+  };
+
+  const handleDownloadCSV = () => {
+    const headers = [
+      "Volunteer Name",
+      "Event Name",
+      "Event Date",
+      "Status",
+      "Duration (Hours)",
+      "Location",
+      "Required Skills",
+      "Urgency",
+      "Description",
+    ];
+
+    const rows = filteredData.map((row) => [
+      row.volunteer_name,
+      row.event_name,
+      new Date(row.event_date).toLocaleDateString(),
+      row.participation_status,
+      row.duration_hours,
+      row.location,
+      row.required_skills.join(", "),
+      row.urgency,
+      row.event_description,
+    ]);
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    // Add the header row
+    csvContent += headers.join(",") + "\n";
+
+    // Add each row of data
+    rows.forEach((rowArray) => {
+      csvContent += rowArray.join(",") + "\n";
+    });
+
+    // Create a link to trigger the download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "volunteer_history.csv");
+    link.click();
+  };
+
   useEffect(() => {
     const fetchVolunteerHistory = async () => {
       try {
@@ -177,6 +238,7 @@ const VolunteerHistory = () => {
                 fullWidth
               />
             </Grid>
+
             <Grid item xs={12}>
               <div style={{ height: 400, width: "100%" }}>
                 <DataGrid
@@ -188,20 +250,48 @@ const VolunteerHistory = () => {
                 />
               </div>
             </Grid>
+
+            {/* Parent Grid container with flex layout for the download buttons */}
+            <Grid item xs={12}>
+              <Grid container spacing={3} direction="row" justifyContent="center">
+                <Grid item xs={6}>
+                  <Button
+                    variant="gradient"
+                    color="dark"
+                    onClick={handleDownloadPDF}
+                    fullWidth
+                    sx={{
+                      color: "white", // Make the button text white
+                    }}
+                  >
+                    Download PDF
+                  </Button>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Button
+                    variant="gradient"
+                    color="dark"
+                    onClick={handleDownloadCSV}
+                    fullWidth
+                    sx={{
+                      color: "white", // Make the button text white
+                    }}
+                  >
+                    Download CSV
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
           </Grid>
         </MKBox>
       </Container>
 
-      {/* Dialog to show full description */}
-      <Dialog
-        open={openDescriptionDialog}
-        onClose={handleCloseDescriptionDialog}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Full Description</DialogTitle>
+      {/* Description Dialog */}
+      <Dialog open={openDescriptionDialog} onClose={handleCloseDescriptionDialog}>
+        <DialogTitle>Event Description</DialogTitle>
         <DialogContent>
-          <MKTypography variant="body1">{selectedDescription}</MKTypography>
+          <p>{selectedDescription}</p>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDescriptionDialog} color="primary">
@@ -210,11 +300,15 @@ const VolunteerHistory = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Dialog to show full skills */}
-      <Dialog open={openSkillsDialog} onClose={handleCloseSkillsDialog} maxWidth="md" fullWidth>
+      {/* Skills Dialog */}
+      <Dialog open={openSkillsDialog} onClose={handleCloseSkillsDialog}>
         <DialogTitle>Required Skills</DialogTitle>
         <DialogContent>
-          <MKTypography variant="body1">{selectedSkills.join(", ")}</MKTypography>
+          <ul>
+            {selectedSkills.map((skill, index) => (
+              <li key={index}>{skill}</li>
+            ))}
+          </ul>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseSkillsDialog} color="primary">
