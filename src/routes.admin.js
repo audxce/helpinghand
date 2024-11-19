@@ -33,7 +33,8 @@ import Event from "layouts/pages/LandingPages/event";
 import ProfileEdit from "layouts/pages/LandingPages/profile-edit";
 import VolunteerForms from "layouts/pages/LandingPages/volunteer-forms";
 import VolunteerHistory from "layouts/pages/LandingPages/volunteer-history";
-import AdminDash from "layouts/pages/LandingPages/Admin";
+import AdminNotifications from "pages/LandingPages/AdminNotifications";
+import Logout from "routes/logout";
 
 const routes = [
   {
@@ -51,7 +52,12 @@ const routes = [
             component: <ProfileEdit />,
           },
           {
-            name: "Volunteer Forms",
+            name: "Send Notifications",
+            route: "/pages/LandingPages/AdminNotifications",
+            component: <AdminNotifications />,
+          },
+          {
+            name: "Match Volunteers",
             route: "/pages/LandingPages/VolunteerForms",
             component: <VolunteerForms />,
           },
@@ -66,12 +72,9 @@ const routes = [
             component: <Event />,
           },
           {
-            name: "Admin Dashboard",
-            route: "/pages/LandingPages/AdminDash",
-            component: <AdminDash />,
-          },
-          {
             name: "Logout",
+            route: "/pages/LandingPages/logout",
+            component: <Logout />,
           },
         ],
       },

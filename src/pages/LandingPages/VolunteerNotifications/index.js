@@ -19,7 +19,9 @@ function NotificationSystem() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/notifications");
+        const response = await axios.get("http://localhost:5000/api/notifications", {
+          withCredentials: true, // Ensures the session cookie is sent
+        });
         setNotifications(response.data);
       } catch (error) {
         console.error("Error fetching notifications:", error);
@@ -35,13 +37,17 @@ function NotificationSystem() {
   // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
-      await axios.put("http://localhost:5000/api/notifications/mark-all-read");
+      await axios.put(
+        "http://localhost:5000/api/notifications/mark-all-read",
+        {},
+        {
+          withCredentials: true, // Ensures the session cookie is sent
+        }
+      );
       setNotifications((prevNotifications) => prevNotifications.map((n) => ({ ...n, read: true })));
     } catch (error) {
       console.error("Error marking notifications as read:", error);
     }
-
-    handleClose();
   };
 
   // Count unread notifications

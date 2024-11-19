@@ -29,14 +29,15 @@ import Icon from "@mui/material/Icon";
 //import ContactUs from "layouts/pages/LandingPages/contact-us";
 //import Author from "layouts/pages/LandingPages/author";
 
+import AdminDash from "layouts/pages/LandingPages/Admin";
 import Event from "layouts/pages/LandingPages/event";
 import Login from "layouts/pages/LandingPages/login";
 import ProfileEdit from "layouts/pages/LandingPages/profile-edit";
 import UserRegistration from "layouts/pages/LandingPages/user-registration";
+import VolunteerDash from "layouts/pages/LandingPages/volunteer-dash";
 import VolunteerForms from "layouts/pages/LandingPages/volunteer-forms";
 import VolunteerHistory from "layouts/pages/LandingPages/volunteer-history";
-import AdminDash from "layouts/pages/LandingPages/Admin";
-import VolunteerDash from "layouts/pages/LandingPages/volunteer-dash";
+import AdminNotifications from "pages/LandingPages/AdminNotifications";
 
 const routes = [
   {
@@ -82,6 +83,11 @@ const routes = [
             name: "Admin Dashboard",
             route: "/pages/LandingPages/AdminDash",
             component: <AdminDash />,
+          },
+          {
+            name: "Admin Notifications",
+            route: "/pages/LandingPages/AdminNotifications",
+            component: <AdminNotifications />,
           },
           {
             name: "Volunteer Dashboard",

@@ -1,5 +1,5 @@
 import Card from "@mui/material/Card";
-import CircularProgress from "@mui/material/CircularProgress"; // For loading spinner
+import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import bgImage from "assets/images/hh-bg.jpg";
 import axios from "axios";
@@ -19,22 +19,20 @@ function Login() {
 
   const navigate = useNavigate(); // Hook for navigation
 
-  // Function to check session after login
   const checkSession = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/check-session", {
-        withCredentials: true, // Ensures cookies are sent with the request
+        withCredentials: true,
       });
-      console.log("Session Data:", response.data.session); // Log session data for debugging
+      console.log("Session Data:", response.data.session);
     } catch (error) {
       console.error("Session Check Error:", error.response?.data?.message || error.message);
     }
   };
 
-  // Updated handleSubmit function with session check
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when request starts
+    setLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
 
@@ -42,29 +40,27 @@ function Login() {
       const response = await axios.post(
         "http://localhost:5000/api/login",
         { email, password },
-        { withCredentials: true } // Ensure cookies are set
+        { withCredentials: true }
       );
 
       console.log(response.data.message);
       setSuccessMessage("Login successful! Redirecting...");
 
-      // Check role and navigate to the appropriate homepage
-      const role = response.data.role; // Assuming 'role' is returned from the backend
+      const role = response.data.role;
       if (role === "administrator") {
-        navigate("/pages/LandingPages/AdminDash"); // Redirect to admin homepage
+        navigate("/pages/LandingPages/AdminDash");
       } else if (role === "volunteer") {
-        navigate("/pages/LandingPages/VolunteerDash"); // Redirect to volunteer homepage
+        navigate("/pages/LandingPages/VolunteerDash");
       } else {
-        setErrorMessage("Unknown role. Please contact support."); // Handle unexpected roles
+        setErrorMessage("Unknown role. Please contact support.");
       }
 
-      // Perform session check after successful login
       await checkSession();
     } catch (error) {
       console.error(error.response?.data?.message || "Login error");
       setErrorMessage(error.response?.data?.message || "Login error");
     } finally {
-      setLoading(false); // Set loading to false after request completes
+      setLoading(false);
     }
   };
 
@@ -115,7 +111,6 @@ function Login() {
                   />
                 </MKBox>
 
-                {/* Loading spinner or Login button */}
                 <MKBox mt={3} mb={1}>
                   {loading ? (
                     <MKButton fullWidth disabled>
@@ -128,7 +123,6 @@ function Login() {
                   )}
                 </MKBox>
 
-                {/* Success or Error messages */}
                 {successMessage && (
                   <MKBox mt={2} textAlign="center">
                     <MKTypography color="success" variant="body2">
@@ -158,6 +152,18 @@ function Login() {
                       Register
                     </MKTypography>
                   </MKTypography>
+                </MKBox>
+
+                {/* Return to Home Button */}
+                <MKBox mt={3} textAlign="center">
+                  <MKButton
+                    variant="outlined" // Makes the button outlined
+                    color="info" // Matches the color of the other buttons
+                    onClick={() => navigate("/")}
+                    size="small" // Makes the button smaller
+                  >
+                    Return to Home
+                  </MKButton>
                 </MKBox>
               </MKBox>
             </MKBox>

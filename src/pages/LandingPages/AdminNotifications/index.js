@@ -1,114 +1,142 @@
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import { Backdrop } from "@mui/material";
-import Badge from "@mui/material/Badge";
-import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import Modal from "@mui/material/Modal";
 import axios from "axios";
 import MKBox from "components/MKBox";
+import MKButton from "components/MKButton";
+import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 
-function NotificationSystem() {
-  // Notifications state
-  const [notifications, setNotifications] = useState([]);
-  const [open, setOpen] = useState(false);
+function NotificationPage() {
+  const [message, setMessage] = useState("");
+  const [msgType, setMsgType] = useState("general");
+  const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Fetch notifications from the backend on component mount
+  // Fetch available events for event notifications
   useEffect(() => {
-    const fetchNotifications = async () => {
+    const fetchEvents = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/notifications");
-        setNotifications(response.data);
+        const response = await axios.get("http://localhost:5000/api/events"); // Adjust route if needed
+        setEvents(
+          response.data.map((event) => ({
+            value: event.eventId,
+            label: event.eventName,
+          }))
+        );
       } catch (error) {
-        console.error("Error fetching notifications:", error);
+        console.error("Error fetching events:", error);
       }
     };
+    fetchEvents();
+  }, []);
 
-    fetchNotifications(); // Fetch notifications on mount
-  }, []); // Empty dependency array ensures it runs once on mount
-
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  // Mark all notifications as read
-  const markAllAsRead = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      await axios.put("http://localhost:5000/api/notifications/mark-all-read");
-      setNotifications((prevNotifications) => prevNotifications.map((n) => ({ ...n, read: true })));
+      const payload = {
+        message,
+        msgtype: msgType,
+        ...(msgType === "event" && { eventId: selectedEvent?.value }),
+      };
+
+      await axios.post("http://localhost:5000/api/notifications", payload, {
+        withCredentials: true,
+      });
+
+      alert("Notification sent successfully!");
+      setMessage("");
+      setMsgType("general");
+      setSelectedEvent(null);
     } catch (error) {
-      console.error("Error marking notifications as read:", error);
+      console.error("Error sending notification:", error.response?.data || error.message);
+      alert("Failed to send notification.");
     }
-
-    handleClose();
   };
 
-  // Count unread notifications
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  // Style for the modal pop-up box
-  const modalStyle = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 600,
-    bgcolor: "background.paper",
-    boxShadow: 24,
-    p: 6,
-    borderRadius: 2,
-  };
+  const navigate = useNavigate(); // Initialize navigate
 
   return (
-    <>
-      {/* Notification Bell with Badge */}
-      <IconButton color="inherit" onClick={handleOpen}>
-        <Badge
-          badgeContent={unreadCount > 0 ? " " : null} // Show red dot if there are unread notifications
-          color="error"
-          variant={unreadCount > 0 ? "dot" : null} // Red dot disappears when unreadCount is 0
-        >
-          <NotificationsIcon />
-        </Badge>
-      </IconButton>
+    <MKBox
+      bgColor="white"
+      borderRadius="xl"
+      shadow="lg"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      p={3}
+      mx={10}
+      mt={5}
+    >
+      <MKTypography variant="h4" fontWeight="bold" mb={3}>
+        Send Notifications
+      </MKTypography>
 
-      {/* Modal Pop-Up for Notifications */}
-      <Modal
-        open={open}
-        onClose={handleClose}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-          sx: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
-        }}
-      >
-        <Box sx={modalStyle}>
-          {/* Notification List */}
-          {notifications.length === 0 ? (
-            <MKTypography variant="body2">No new notifications</MKTypography>
-          ) : (
-            notifications.map((notification, index) => (
-              <div key={notification.id}>
-                <MKTypography variant="button" fontWeight={notification.read ? "regular" : "bold"}>
-                  {notification.message}
-                </MKTypography>
-                {/* Adds a divider between notifications */}
-                {index < notifications.length - 1 && <Divider sx={{ my: 2 }} />}
-              </div>
-            ))
-          )}
-          {/* Mark all as read button */}
-          <MKBox display="flex" justifyContent="flex-end" sx={{ mt: 2 }}>
-            <MKTypography variant="button" sx={{ cursor: "pointer" }} onClick={markAllAsRead}>
-              Mark all as read
+      <MKBox component="form" onSubmit={handleSubmit}>
+        {/* Message Input */}
+        <MKBox mb={3}>
+          <MKTypography variant="body2" color="text">
+            Message
+          </MKTypography>
+          <MKInput
+            type="text"
+            placeholder="Enter your notification message"
+            fullWidth
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+        </MKBox>
+
+        {/* Notification Type */}
+        <MKBox mb={3}>
+          <MKTypography variant="body2" color="text">
+            Notification Type
+          </MKTypography>
+          <Select
+            options={[
+              { value: "general", label: "General" },
+              { value: "event", label: "Event" },
+            ]}
+            value={{ value: msgType, label: msgType.charAt(0).toUpperCase() + msgType.slice(1) }}
+            onChange={(selected) => setMsgType(selected.value)}
+            placeholder="Select Notification Type"
+          />
+        </MKBox>
+
+        {/* Event Selector (only visible for event notifications) */}
+        {msgType === "event" && (
+          <MKBox mb={3}>
+            <MKTypography variant="body2" color="text">
+              Select Event
             </MKTypography>
+            <Select
+              options={events}
+              value={selectedEvent}
+              onChange={(selected) => setSelectedEvent(selected)}
+              placeholder="Select Event"
+            />
           </MKBox>
-        </Box>
-      </Modal>
-    </>
+        )}
+
+        {/* Submit Button */}
+        <MKBox mt={4} textAlign="center">
+          <MKButton type="submit" variant="gradient" color="info">
+            Send Notification
+          </MKButton>
+        </MKBox>
+      </MKBox>
+
+      {/* Return to Home Button */}
+      <MKBox mt={4} textAlign="center">
+        <MKButton
+          color="secondary"
+          onClick={() => navigate("/pages/LandingPages/AdminDash")} // Adjust the route as needed
+        >
+          Return to Home
+        </MKButton>
+      </MKBox>
+    </MKBox>
   );
 }
 
-export default NotificationSystem;
+export default NotificationPage;
