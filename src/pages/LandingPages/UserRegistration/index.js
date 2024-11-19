@@ -7,11 +7,13 @@ import MKBox from "components/MKBox";
 import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Select from "react-select";
 
 function UserRegistration() {
-  // Define all necessary state variables
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -27,24 +29,39 @@ function UserRegistration() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [states, setStates] = useState([]); // State options for the dropdown
 
-  const navigate = useNavigate(); // Hook for navigation
+  // Fetch states on component mount
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/states"); // Replace with actual API endpoint
+        setStates(
+          response.data.map((state) => ({
+            value: state.stateCode,
+            label: state.stateName,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching states:", error.response?.data || error.message);
+      }
+    };
+
+    fetchStates();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Clear previous messages
     setError("");
     setSuccessMessage("");
 
-    // Basic validation to check if passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
     try {
-      setLoading(true); // Start loading when request is made
+      setLoading(true);
       const response = await axios.post("http://localhost:5000/api/user_registration", {
         email,
         password,
@@ -55,20 +72,20 @@ function UserRegistration() {
         city,
         state,
         zipcode,
-        skills,
-        availability,
-        preferences,
       });
 
-      // Handle success
       setSuccessMessage("Registration successful! Redirecting...");
       console.log(response.data.message);
+
+      // Redirect to the login page
+      setTimeout(() => {
+        navigate("/pages/LandingPages/Login");
+      }, 1500);
     } catch (error) {
-      // Handle error
       setError(error.response?.data?.message || "Registration error");
       console.error(error.response?.data?.message || "Registration error");
     } finally {
-      setLoading(false); // Stop loading after the request finishes
+      setLoading(false);
     }
   };
 
@@ -100,7 +117,6 @@ function UserRegistration() {
             <MKBox pt={2} pb={3} px={3}>
               <MKBox component="form" role="form" onSubmit={handleSubmit}>
                 <Grid container spacing={2}>
-                  {/* Input fields */}
                   <Grid item xs={12}>
                     <MKInput
                       type="email"
@@ -164,19 +180,18 @@ function UserRegistration() {
                       onChange={(e) => setCity(e.target.value)}
                     />
                   </Grid>
-                  <Grid item xs={3}>
-                    <MKInput
-                      type="text"
-                      label="State"
-                      fullWidth
-                      value={state}
-                      onChange={(e) => setState(e.target.value)}
+                  <Grid item xs={6}>
+                    <Select
+                      options={states}
+                      value={states.find((s) => s.value === state)}
+                      onChange={(selectedOption) => setState(selectedOption.value)}
+                      placeholder="Select State"
                     />
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={12}>
                     <MKInput
                       type="text"
-                      label="Zipcode"
+                      label="ZIP Code"
                       fullWidth
                       value={zipcode}
                       onChange={(e) => setZipcode(e.target.value)}
@@ -210,8 +225,6 @@ function UserRegistration() {
                     />
                   </Grid>
                 </Grid>
-
-                {/* Error message */}
                 {error && (
                   <MKBox mt={2} textAlign="center">
                     <MKTypography variant="caption" color="error">
@@ -220,7 +233,6 @@ function UserRegistration() {
                   </MKBox>
                 )}
 
-                {/* Success message */}
                 {successMessage && (
                   <MKBox mt={2} textAlign="center">
                     <MKTypography variant="caption" color="success">
@@ -229,7 +241,6 @@ function UserRegistration() {
                   </MKBox>
                 )}
 
-                {/* Register button or loading spinner */}
                 <MKBox mt={3} mb={1}>
                   {loading ? (
                     <MKButton fullWidth disabled>
@@ -241,7 +252,6 @@ function UserRegistration() {
                     </MKButton>
                   )}
                 </MKBox>
-
                 <MKBox mt={1} textAlign="center">
                   <MKTypography variant="button" color="secondary" fontWeight="small">
                     Already have an account?{" "}
