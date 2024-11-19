@@ -31,9 +31,8 @@ import Icon from "@mui/material/Icon";
 
 import Event from "layouts/pages/LandingPages/event";
 import ProfileEdit from "layouts/pages/LandingPages/profile-edit";
-import VolunteerForms from "layouts/pages/LandingPages/volunteer-forms";
+//import VolunteerForms from "layouts/pages/LandingPages/volunteer-forms";
 import VolunteerHistory from "layouts/pages/LandingPages/volunteer-history";
-//import AdminDash from "layouts/pages/LandingPages/Admin";
 
 const routes = [
   {
@@ -49,11 +48,6 @@ const routes = [
             name: "Profile",
             route: "/pages/LandingPages/ProfileEdit",
             component: <ProfileEdit />,
-          },
-          {
-            name: "Volunteer Forms",
-            route: "/pages/LandingPages/VolunteerForms",
-            component: <VolunteerForms />,
           },
           {
             name: "Volunteer History",

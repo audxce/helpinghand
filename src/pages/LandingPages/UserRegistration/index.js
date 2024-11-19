@@ -8,7 +8,7 @@ import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function UserRegistration() {
   // Define all necessary state variables
@@ -27,6 +27,8 @@ function UserRegistration() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate(); // Hook for navigation
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,6 +100,7 @@ function UserRegistration() {
             <MKBox pt={2} pb={3} px={3}>
               <MKBox component="form" role="form" onSubmit={handleSubmit}>
                 <Grid container spacing={2}>
+                  {/* Input fields */}
                   <Grid item xs={12}>
                     <MKInput
                       type="email"
@@ -107,7 +110,6 @@ function UserRegistration() {
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </Grid>
-
                   <Grid item xs={6}>
                     <MKInput
                       type="password"
@@ -126,7 +128,6 @@ function UserRegistration() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                   </Grid>
-
                   <Grid item xs={12}>
                     <MKInput
                       type="text"
@@ -136,7 +137,6 @@ function UserRegistration() {
                       onChange={(e) => setFullName(e.target.value)}
                     />
                   </Grid>
-
                   <Grid item xs={12}>
                     <MKInput
                       type="text"
@@ -146,7 +146,6 @@ function UserRegistration() {
                       onChange={(e) => setAddress(e.target.value)}
                     />
                   </Grid>
-
                   <Grid item xs={12}>
                     <MKInput
                       type="text"
@@ -156,7 +155,6 @@ function UserRegistration() {
                       onChange={(e) => setAddressTwo(e.target.value)}
                     />
                   </Grid>
-
                   <Grid item xs={6}>
                     <MKInput
                       type="text"
@@ -184,7 +182,6 @@ function UserRegistration() {
                       onChange={(e) => setZipcode(e.target.value)}
                     />
                   </Grid>
-
                   <Grid item xs={12}>
                     <MKInput
                       type="text"
@@ -194,7 +191,6 @@ function UserRegistration() {
                       onChange={(e) => setSkills(e.target.value)}
                     />
                   </Grid>
-
                   <Grid item xs={12}>
                     <MKInput
                       type="text"
@@ -204,7 +200,6 @@ function UserRegistration() {
                       onChange={(e) => setAvailability(e.target.value)}
                     />
                   </Grid>
-
                   <Grid item xs={12}>
                     <MKInput
                       type="text"
@@ -216,7 +211,7 @@ function UserRegistration() {
                   </Grid>
                 </Grid>
 
-                {/* Display error message */}
+                {/* Error message */}
                 {error && (
                   <MKBox mt={2} textAlign="center">
                     <MKTypography variant="caption" color="error">
@@ -225,7 +220,7 @@ function UserRegistration() {
                   </MKBox>
                 )}
 
-                {/* Display success message */}
+                {/* Success message */}
                 {successMessage && (
                   <MKBox mt={2} textAlign="center">
                     <MKTypography variant="caption" color="success">
@@ -261,6 +256,18 @@ function UserRegistration() {
                       Login
                     </MKTypography>
                   </MKTypography>
+                </MKBox>
+
+                {/* Return to Home Button */}
+                <MKBox mt={3} textAlign="center">
+                  <MKButton
+                    variant="outlined" // Makes the button outlined
+                    color="info" // Matches the color of the other buttons
+                    onClick={() => navigate("/")}
+                    size="small" // Makes the button smaller
+                  >
+                    Return to Home
+                  </MKButton>
                 </MKBox>
               </MKBox>
             </MKBox>
