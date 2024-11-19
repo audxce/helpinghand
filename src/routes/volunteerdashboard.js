@@ -5,7 +5,6 @@ const db = require("../../db"); // Adjust the path to your actual db connection 
 
 const router = express.Router();
 
-
 // Function to convert 12-hour format to 24-hour format
 const convertTo24Hour = (time) => {
   const [timePart, modifier] = time.split(" ");
