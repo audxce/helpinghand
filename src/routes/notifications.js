@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../../db"); // Replace with your database connection
+const db = require("../../db");
 
 // Get all notifications for the logged-in user
 router.get("/", (req, res) => {
@@ -11,12 +11,24 @@ router.get("/", (req, res) => {
   }
 
   const query = `
-    SELECT n.notificationId, n.message, n.msgtimestamp, n.msgtype, n.eventId, n.readmsg
-    FROM notifications n
-    INNER JOIN user_notifications un ON n.notificationId = un.notificationId
-    WHERE un.userId = ?
-    ORDER BY n.msgtimestamp DESC
-  `;
+  SELECT 
+    n.notificationId, 
+    n.message, 
+    n.msgtimestamp, 
+    n.msgtype, 
+    n.eventId, 
+    un.readmsg
+  FROM 
+    notifications n
+  INNER JOIN 
+    user_notifications un 
+  ON 
+    n.notificationId = un.notificationId
+  WHERE 
+    un.user_id = ?
+  ORDER BY 
+    n.msgtimestamp DESC
+`;
 
   db.query(query, [userId], (error, results) => {
     if (error) {
@@ -37,16 +49,15 @@ router.put("/mark-all-read", (req, res) => {
   }
 
   const query = `
-    UPDATE user_notifications un
-    INNER JOIN notifications n ON un.notificationId = n.notificationId
-    SET n.readmsg = 1
-    WHERE un.userId = ?
+    UPDATE user_notifications
+    SET readmsg = 1
+    WHERE userId = ?
   `;
 
   db.query(query, [userId], (error, results) => {
     if (error) {
       console.error("Database error:", error);
-      return res.status(500).json({ message: "Error marking notifications as read" });
+      return res.status(500).json({ message: "Error marking notifications as read." });
     }
 
     res.json({ success: true, message: "All notifications marked as read." });
@@ -58,7 +69,7 @@ router.post("/", (req, res) => {
   const { message, msgtype, eventId } = req.body;
 
   if (!message || !msgtype) {
-    return res.status(400).json({ error: "Message and msgtype are required" });
+    return res.status(400).json({ error: "Message and msgtype are required." });
   }
 
   const insertNotificationQuery = `
@@ -66,11 +77,10 @@ router.post("/", (req, res) => {
     VALUES (?, ?, ?, NOW())
   `;
 
-  // Insert the notification
   db.query(insertNotificationQuery, [message, msgtype, eventId || null], (err, result) => {
     if (err) {
       console.error("Error creating notification:", err);
-      return res.status(500).json({ message: "Error creating notification" });
+      return res.status(500).json({ message: "Error creating notification." });
     }
 
     const notificationId = result.insertId;
@@ -84,13 +94,13 @@ router.post("/", (req, res) => {
       db.query(linkUsersQuery, [notificationId], (err) => {
         if (err) {
           console.error("Error linking users to notification:", err);
-          return res.status(500).json({ message: "Error linking users to notification" });
+          return res.status(500).json({ message: "Error linking users to notification." });
         }
         res.json({ success: true, message: "Notification sent to all users." });
       });
-
-      // Handle event notifications
-    } else if (msgtype === "event" && eventId) {
+    }
+    // Handle event notifications
+    else if (msgtype === "event" && eventId) {
       const linkEventUsersQuery = `
         INSERT INTO user_notifications (userId, notificationId)
         SELECT userId, ? FROM event_users WHERE eventId = ?
@@ -98,11 +108,13 @@ router.post("/", (req, res) => {
       db.query(linkEventUsersQuery, [notificationId, eventId], (err) => {
         if (err) {
           console.error("Error linking event users to notification:", err);
-          return res.status(500).json({ message: "Error linking event users to notification" });
+          return res.status(500).json({ message: "Error linking event users to notification." });
         }
         res.json({ success: true, message: "Notification sent to event users." });
       });
-    } else {
+    }
+    // Invalid request
+    else {
       res.status(400).json({ message: "Invalid notification type or missing eventId." });
     }
   });
