@@ -12,7 +12,7 @@ import MKTypography from "components/MKTypography";
 
 // Material Kit 2 React examples
 import DefaultFooter from "examples/Footers/SimpleFooter";
-import DefaultNavbar from "examples/Navbars/DefaultNavbar";
+import NewNavbar from "examples/Navbars/DefaultNavbar/index2";
 
 // Routes
 import footerRoutes from "footer.routes";
@@ -111,7 +111,7 @@ function Presentation() {
 
   return (
     <>
-      <DefaultNavbar routes={routes} />
+      <NewNavbar routes={routes} />
       <MKBox
         minHeight="90vh"
         width="100%"

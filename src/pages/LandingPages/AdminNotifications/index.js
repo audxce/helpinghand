@@ -4,7 +4,6 @@ import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 
 function NotificationPage() {
@@ -54,7 +53,7 @@ function NotificationPage() {
     }
   };
 
-  const navigate = useNavigate(); // Initialize navigate
+  //const navigate = useNavigate(); // Initialize navigate
 
   return (
     <MKBox
@@ -126,7 +125,7 @@ function NotificationPage() {
         </MKBox>
       </MKBox>
 
-      {/* Return to Home Button */}
+      {/* Return to Home Button 
       <MKBox mt={4} textAlign="center">
         <MKButton
           color="secondary"
@@ -134,7 +133,7 @@ function NotificationPage() {
         >
           Return to Home
         </MKButton>
-      </MKBox>
+      </MKBox>*/}
     </MKBox>
   );
 }
