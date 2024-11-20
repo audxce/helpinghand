@@ -51,7 +51,7 @@ router.put("/mark-all-read", (req, res) => {
   const query = `
     UPDATE user_notifications
     SET readmsg = 1
-    WHERE userId = ?
+    WHERE user_id = ?
   `;
 
   db.query(query, [userId], (error, results) => {
@@ -88,7 +88,7 @@ router.post("/", (req, res) => {
     // Handle general notifications
     if (msgtype === "general") {
       const linkUsersQuery = `
-        INSERT INTO user_notifications (userId, notificationId)
+        INSERT INTO user_notifications (user_id, notificationId)
         SELECT user_id, ? FROM usercredentials
       `;
       db.query(linkUsersQuery, [notificationId], (err) => {
@@ -102,8 +102,8 @@ router.post("/", (req, res) => {
     // Handle event notifications
     else if (msgtype === "event" && eventId) {
       const linkEventUsersQuery = `
-        INSERT INTO user_notifications (userId, notificationId)
-        SELECT userId, ? FROM event_users WHERE eventId = ?
+        INSERT INTO user_notifications (user_id, notificationId)
+        SELECT user_id, ? FROM event_users WHERE eventId = ?
       `;
       db.query(linkEventUsersQuery, [notificationId, eventId], (err) => {
         if (err) {
@@ -117,6 +117,34 @@ router.post("/", (req, res) => {
     else {
       res.status(400).json({ message: "Invalid notification type or missing eventId." });
     }
+  });
+});
+
+// Delete a notification
+router.delete("/:notificationId", (req, res) => {
+  const userId = req.session?.user?.id; // Retrieve user ID from session
+  const { notificationId } = req.params; // Retrieve notification ID from request params
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
+
+  const query = `
+    DELETE FROM user_notifications
+    WHERE notificationId = ? AND user_id = ?
+  `;
+
+  db.query(query, [notificationId, userId], (error, results) => {
+    if (error) {
+      console.error("Database error:", error);
+      return res.status(500).json({ message: "Error deleting notification." });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: "Notification not found or not authorized to delete." });
+    }
+
+    res.json({ success: true, message: "Notification deleted successfully." });
   });
 });
 

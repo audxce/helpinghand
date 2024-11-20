@@ -5,6 +5,7 @@ import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
 import { useEffect, useState } from "react";
 import DatePicker from "react-multi-date-picker";
+import "react-multi-date-picker/styles/layouts/mobile.css";
 import Select from "react-select";
 
 function ProfileEdit() {
@@ -17,7 +18,7 @@ function ProfileEdit() {
     zipCode: "",
     skills: [],
     preferences: [],
-    availability: [],
+    availability: "",
   });
 
   const [states, setStates] = useState([]); // Dropdown options for states
@@ -52,7 +53,20 @@ function ProfileEdit() {
         const response = await axios.get("http://localhost:5000/api/profile", {
           withCredentials: true,
         });
-        setProfileData(response.data); // Prepopulate profile data from userprofile
+
+        const data = response.data;
+
+        setProfileData({
+          ...data,
+          skills: Array.isArray(data.skills) ? data.skills : JSON.parse(data.skills || "[]"), // Ensure skills is an array
+          preferences: Array.isArray(data.preferences)
+            ? data.preferences
+            : JSON.parse(data.preferences || "[]"), // Ensure preferences is an array
+          availability:
+            typeof data.availability === "string" && data.availability.includes("-")
+              ? data.availability // Keep availability as a valid string
+              : "", // Default to empty string if not set
+        });
         setLoading(false);
       } catch (error) {
         console.error("Error fetching profile data:", error.response?.data || error.message);
@@ -83,7 +97,14 @@ function ProfileEdit() {
   };
 
   const handleDateChange = (dates) => {
-    setProfileData((prev) => ({ ...prev, availability: dates }));
+    if (Array.isArray(dates) && dates.length === 2) {
+      // Ensure dates are converted to valid Date objects
+      const [startDate, endDate] = dates.map((date) => new Date(date));
+      const formattedRange = `${startDate.toLocaleDateString("en-US")}-${endDate.toLocaleDateString(
+        "en-US"
+      )}`;
+      setProfileData((prev) => ({ ...prev, availability: formattedRange }));
+    }
   };
 
   const handleStateChange = (selectedOption) => {
@@ -140,7 +161,6 @@ function ProfileEdit() {
             onChange={handleChange("fullName")}
           />
         </MKBox>
-
         {/* Address */}
         <MKBox mb={2}>
           <MKTypography variant="body2" color="text">
@@ -153,7 +173,6 @@ function ProfileEdit() {
             onChange={handleChange("address")}
           />
         </MKBox>
-
         {/* Address Line 2 */}
         <MKBox mb={2}>
           <MKTypography variant="body2" color="text">
@@ -166,7 +185,6 @@ function ProfileEdit() {
             onChange={handleChange("addressTwo")}
           />
         </MKBox>
-
         {/* City */}
         <MKBox mb={2}>
           <MKTypography variant="body2" color="text">
@@ -174,7 +192,6 @@ function ProfileEdit() {
           </MKTypography>
           <MKInput type="text" fullWidth value={profileData.city} onChange={handleChange("city")} />
         </MKBox>
-
         {/* State Dropdown */}
         <MKBox mb={2}>
           <MKTypography variant="body2" color="text">
@@ -188,7 +205,6 @@ function ProfileEdit() {
             styles={customSelectStyles}
           />
         </MKBox>
-
         {/* ZIP Code */}
         <MKBox mb={2}>
           <MKTypography variant="body2" color="text">
@@ -198,10 +214,15 @@ function ProfileEdit() {
             type="text"
             fullWidth
             value={profileData.zipCode}
-            onChange={handleChange("zipCode")}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Allow only numbers and restrict to 5 characters
+              if (/^\d{0,5}$/.test(value)) {
+                setProfileData((prev) => ({ ...prev, zipCode: value }));
+              }
+            }}
           />
         </MKBox>
-
         {/* Skills */}
         <MKBox mb={2}>
           <MKTypography variant="body2" color="text">
@@ -210,6 +231,12 @@ function ProfileEdit() {
           <Select
             isMulti
             options={[
+              { value: "Event Planning", label: "Event Planning" },
+              { value: "Fundraising", label: "Fundraising" },
+              { value: "Mentorship", label: "Mentorship" },
+              { value: "Administrative Support", label: "Administrative Support" },
+              { value: "First Aid", label: "First Aid" },
+              { value: "Teaching", label: "Teaching" },
               { value: "Cooking", label: "Cooking" },
               { value: "Gardening", label: "Gardening" },
               { value: "Building", label: "Building" },
@@ -222,38 +249,43 @@ function ProfileEdit() {
             styles={customSelectStyles}
           />
         </MKBox>
-
         {/* Preferences */}
         <MKBox mb={2}>
           <MKTypography variant="body2" color="text">
             Preferences
           </MKTypography>
-          <MKInput
-            type="text"
-            fullWidth
-            value={(profileData.preferences || []).join(", ")}
-            onChange={(e) =>
-              setProfileData((prev) => ({
-                ...prev,
-                preferences: e.target.value.split(",").map((p) => p.trim()),
-              }))
+          <Select
+            isMulti
+            options={[
+              { value: "Weekends", label: "Weekends" },
+              { value: "Weekdays", label: "Weekdays" },
+              { value: "Remote", label: "Remote" },
+              { value: "Evenings", label: "Evenings" },
+              { value: "On-site", label: "On-site" },
+            ]}
+            value={profileData.preferences.map((pref) => ({ value: pref, label: pref }))}
+            onChange={(selected) =>
+              setProfileData((prev) => ({ ...prev, preferences: selected.map((p) => p.value) }))
             }
+            placeholder="Select Preferences"
+            styles={customSelectStyles} // Reuse the same styles as Skills
           />
         </MKBox>
-
-        {/* Availability */}
         <MKBox mb={2}>
           <MKTypography variant="body2" color="text">
             Availability
           </MKTypography>
           <DatePicker
-            multiple
-            value={profileData.availability}
+            range
+            value={
+              typeof profileData.availability === "string" && profileData.availability.includes("-")
+                ? profileData.availability.split("-").map((date) => new Date(date))
+                : [] // Default to an empty array if not properly set
+            }
             onChange={handleDateChange}
-            format="YYYY-MM-DD"
+            format="MM/DD/YYYY"
           />
         </MKBox>
-
         {/* Submit Button */}
         <MKBox mt={3} textAlign="center">
           <MKButton type="submit" variant="gradient" color="info">

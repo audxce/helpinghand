@@ -1,5 +1,7 @@
 const express = require("express");
-const db = require("../db"); // Adjust path if necessary
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const db = require("../db"); // Adjust path if `db.js` is in `src`
 
 const router = express.Router();
 

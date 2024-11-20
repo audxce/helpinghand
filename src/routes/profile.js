@@ -37,7 +37,7 @@ router.get("/volunteer", async (req, res) => {
       availability: user.availability,
     }));
 
-    console.log(users);
+    //console.log(users);
     res.json(users);
   } catch (error) {
     console.error("Database error:", error);
@@ -72,7 +72,7 @@ router.get("/admin", async (req, res) => {
       availability: user.availability,
     }));
 
-    console.log(users);
+    // console.log(users);
     res.json(users);
   } catch (error) {
     console.error("Database error:", error);
@@ -102,9 +102,14 @@ router.get("/", async (req, res) => {
       city: user.city,
       state: user.state,
       zipCode: user.zipcode,
-      skills: isValidJson(user.skills),
-      preferences: isValidJson(user.preferences),
-      availability: isValidJson(user.availability),
+      skills: Array.isArray(user.skills) ? user.skills : JSON.parse(user.skills || "[]"), // Ensure it's an array
+      preferences: Array.isArray(user.preferences)
+        ? user.preferences
+        : JSON.parse(user.preferences || "[]"), // Ensure it's an array
+      availability:
+        typeof user.availability === "string"
+          ? user.availability
+          : JSON.parse(user.availability || ""), // Ensure it's a string
     });
   } catch (error) {
     console.error("Database error:", error);
@@ -112,7 +117,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Update user profile
 router.post("/", async (req, res) => {
   const userId = req.session?.user?.id; // Retrieve user ID from session
   if (!userId) {
@@ -122,34 +126,35 @@ router.post("/", async (req, res) => {
   const { fullName, address, addressTwo, city, state, zipCode, skills, preferences, availability } =
     req.body;
 
-  if (!fullName) {
-    return res.status(400).json({ message: "Full name is required" });
-  }
-
-  const profileData = {
-    user_id: userId,
-    full_name: fullName,
-    address,
-    address_two: addressTwo,
-    city,
-    state,
-    zipcode: zipCode,
-    skills: JSON.stringify(skills),
-    preferences: JSON.stringify(preferences),
-    availability: JSON.stringify(availability),
-  };
-
   try {
+    // Fetch existing profile data
     const [existingProfile] = await db.query("SELECT * FROM UserProfile WHERE user_id = ?", [
       userId,
     ]);
-    if (existingProfile.length > 0) {
-      await db.query("UPDATE UserProfile SET ? WHERE user_id = ?", [profileData, userId]);
-      res.status(200).json({ message: "Profile updated successfully" });
-    } else {
-      await db.query("INSERT INTO UserProfile SET ?", profileData);
-      res.status(201).json({ message: "Profile created successfully" });
+
+    if (existingProfile.length === 0) {
+      return res.status(404).json({ message: "User profile not found" });
     }
+
+    const existingData = existingProfile[0];
+
+    // Only update fields that are provided, fallback to existing data
+    const profileData = {
+      user_id: userId,
+      full_name: fullName || existingData.full_name,
+      address: address || existingData.address,
+      address_two: addressTwo || existingData.address_two,
+      city: city || existingData.city,
+      state: state || existingData.state,
+      zipcode: zipCode || existingData.zipcode,
+      skills: skills ? JSON.stringify(skills) : existingData.skills,
+      preferences: preferences ? JSON.stringify(preferences) : existingData.preferences,
+      availability: availability ? JSON.stringify(availability) : existingData.availability,
+    };
+
+    // Update the profile in the database
+    await db.query("UPDATE UserProfile SET ? WHERE user_id = ?", [profileData, userId]);
+    res.status(200).json({ message: "Profile updated successfully" });
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ message: "Error saving profile" });

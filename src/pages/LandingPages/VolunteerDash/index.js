@@ -1,19 +1,19 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import MediaCardList from "./MediaCard"; // Import MediaCardList component
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import bgImage from "assets/images/hh-bg.jpg";
+import hhlogo from "assets/images/hhlogo.png";
+import axios from "axios";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
 import DefaultFooter from "examples/Footers/SimpleFooter";
-import DefaultNavbar from "examples/Navbars/DefaultNavbar";
+import NewNavbar from "examples/Navbars/DefaultNavbar/index2";
 import footerRoutes from "footer.routes";
-import routes from "routes.volunteer";
-import bgImage from "assets/images/hh-bg.jpg";
-import hhlogo from "assets/images/hhlogo.png";
-import IconButton from "@mui/material/IconButton";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import routes from "routes.volunteer";
+import MediaCardList from "./MediaCard"; // Import MediaCardList component
 
 function Presentation() {
   const navigate = useNavigate(); // Create a history object for navigation
@@ -51,7 +51,7 @@ function Presentation() {
 
   return (
     <>
-      <DefaultNavbar routes={routes} />
+      <NewNavbar routes={routes} />
       <MKBox
         minHeight="75vh"
         width="100%"

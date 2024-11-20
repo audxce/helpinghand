@@ -33,6 +33,7 @@ import Popper from "@mui/material/Popper";
 
 // Material Kit 2 React components
 import MKBox from "components/MKBox";
+import MKButton from "components/MKButton";
 import MKTypography from "components/MKTypography";
 
 // Material Kit 2 React example components
@@ -42,9 +43,11 @@ import DefaultNavbarMobile from "examples/Navbars/DefaultNavbar/DefaultNavbarMob
 // Material Kit 2 React base styles
 import breakpoints from "assets/theme/base/breakpoints";
 
+import NotificationSystem from "pages/LandingPages/VolunteerNotifications";
+
 import hhlogo from "assets/images/hhlogo.png";
 
-function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, center }) {
+function DefaultNavbar({ brand, routes, transparent, light, action, sticky, relative, center }) {
   const [dropdown, setDropdown] = useState("");
   const [dropdownEl, setDropdownEl] = useState("");
   const [dropdownName, setDropdownName] = useState("");
@@ -101,6 +104,25 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
       light={light}
     />
   ));
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/logout", {
+        // Use absolute URL
+        method: "POST",
+        credentials: "include", // Ensures cookies are included in the request
+      });
+      if (response.ok) {
+        window.location.href = "/";
+      } else {
+        const result = await response.json();
+        alert(result.message || "Logout failed.");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("An error occurred during logout.");
+    }
+  };
 
   // Render the routes on the dropdown menu
   const renderRoutes = routes.map(({ name, collapse, columns, rowsPerColumn }) => {
@@ -489,7 +511,55 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
             mr={center ? "auto" : 0}
           >
             {renderNavbarItems}
+            <NotificationSystem />
           </MKBox>
+          <MKBox ml={{ xs: "auto", lg: 0 }}>
+            {action &&
+              (action.type === "internal" ? (
+                <MKButton
+                  component={Link}
+                  to={action.route}
+                  variant={
+                    action.color === "white" || action.color === "default"
+                      ? "contained"
+                      : "gradient"
+                  }
+                  color={action.color ? action.color : "info"}
+                  size="small"
+                >
+                  {action.label}
+                </MKButton>
+              ) : (
+                <MKButton
+                  component="a"
+                  href={action.route}
+                  target="_blank"
+                  rel="noreferrer"
+                  variant={
+                    action.color === "white" || action.color === "default"
+                      ? "contained"
+                      : "gradient"
+                  }
+                  color={action.color ? action.color : "info"}
+                  size="small"
+                >
+                  {action.label}
+                </MKButton>
+              ))}
+          </MKBox>
+          <MKTypography
+            variant="button"
+            color={light ? "white" : "dark"}
+            sx={{
+              cursor: "pointer",
+              ml: 2,
+              display: "flex",
+              alignItems: "center", // Centers text with the notification icon
+            }}
+            onClick={handleLogout} // Calls the handleLogout function
+          >
+            Logout
+          </MKTypography>
           <MKBox
             display={{ xs: "inline-block", lg: "none" }}
             lineHeight={0}

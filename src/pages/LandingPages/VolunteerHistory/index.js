@@ -1,28 +1,28 @@
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
 import {
-  TextField,
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Button,
+  TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import axios from "axios"; // Import axios for making HTTP requests
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
+import { DataGrid } from "@mui/x-data-grid";
+import axios from "axios";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
-import { DataGrid } from "@mui/x-data-grid"; // Import DataGrid
+import { useEffect, useState } from "react";
 
-import bgImage from "assets/images/hh-bg.jpg"; // Background image import
+import bgImage from "assets/images/hh-bg.jpg";
 
 const VolunteerHistory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [volunteerData, setVolunteerData] = useState([]);
-  const [openDescriptionDialog, setOpenDescriptionDialog] = useState(false); // State for opening/closing description dialog
-  const [openSkillsDialog, setOpenSkillsDialog] = useState(false); // State for opening/closing skills dialog
-  const [selectedDescription, setSelectedDescription] = useState(""); // To hold selected description
-  const [selectedSkills, setSelectedSkills] = useState([]); // To hold selected skills
+  const [openDescriptionDialog, setOpenDescriptionDialog] = useState(false);
+  const [openSkillsDialog, setOpenSkillsDialog] = useState(false);
+  const [selectedDescription, setSelectedDescription] = useState("");
+  const [selectedSkills, setSelectedSkills] = useState([]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -33,12 +33,10 @@ const VolunteerHistory = () => {
     return !isNaN(date.getTime());
   };
 
-  // Filter the data based on the search query
   const filteredData = volunteerData.filter((row) =>
-    row.volunteer_name.toLowerCase().includes(searchQuery.toLowerCase())
+    row.volunteer_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Define columns for the DataGrid
   const columns = [
     { field: "volunteer_name", headerName: "Volunteer Name", width: 180 },
     { field: "event_name", headerName: "Event Name", width: 180 },
@@ -56,91 +54,88 @@ const VolunteerHistory = () => {
       field: "required_skills",
       headerName: "Required Skills",
       width: 200,
-      renderCell: (params) => (
-        <span
-          style={{
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            cursor: "pointer",
-          }}
-          onClick={() => handleOpenSkillsDialog(params.value)}
-        >
-          {params.value.length > 30
-            ? `${params.value.slice(0, 30).join(", ")}...`
-            : params.value.join(", ")}
-        </span>
-      ),
+      renderCell: (params) => {
+        const skills = Array.isArray(params.value) ? params.value : [];
+        return (
+          <span
+            style={{
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              cursor: "pointer",
+            }}
+            onClick={() => handleOpenSkillsDialog(skills)}
+          >
+            {skills.length > 30 ? `${skills.slice(0, 30).join(", ")}...` : skills.join(", ")}
+          </span>
+        );
+      },
     },
     { field: "urgency", headerName: "Urgency", width: 130 },
     {
       field: "event_description",
       headerName: "Description",
       width: 250,
-      renderCell: (params) => (
-        <span
-          style={{
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            cursor: "pointer",
-          }}
-          onClick={() => handleOpenDescriptionDialog(params.value)}
-        >
-          {params.value.length > 30 ? `${params.value.slice(0, 30)}...` : params.value}
-        </span>
-      ),
+      renderCell: (params) => {
+        const description = params.value || "";
+        return (
+          <span
+            style={{
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              cursor: "pointer",
+            }}
+            onClick={() => handleOpenDescriptionDialog(description)}
+          >
+            {description.length > 30 ? `${description.slice(0, 30)}...` : description}
+          </span>
+        );
+      },
     },
   ];
 
-  // Convert filtered data to rows for DataGrid
   const rows = filteredData.map((row) => ({
-    id: row.volunteer_history_id,
-    volunteer_name: row.volunteer_name,
-    event_name: row.event_name,
-    event_date: row.event_date,
-    participation_status: row.participation_status,
-    duration_hours: row.duration_hours,
-    location: row.location,
-    required_skills: row.required_skills,
-    urgency: row.urgency,
-    event_description: row.event_description,
+    id: row.volunteer_history_id || "",
+    volunteer_name: row.volunteer_name || "",
+    event_name: row.event_name || "",
+    event_date: row.event_date || "",
+    participation_status: row.participation_status || "",
+    duration_hours: row.duration_hours || "",
+    location: row.location || "",
+    required_skills: Array.isArray(row.required_skills) ? row.required_skills : [],
+    urgency: row.urgency || "",
+    event_description: row.event_description || "",
   }));
 
   const handleOpenDescriptionDialog = (description) => {
-    setSelectedDescription(description); // Set selected description
-    setOpenDescriptionDialog(true); // Open the description dialog
+    setSelectedDescription(description);
+    setOpenDescriptionDialog(true);
   };
 
   const handleCloseDescriptionDialog = () => {
-    setOpenDescriptionDialog(false); // Close the description dialog
+    setOpenDescriptionDialog(false);
   };
 
   const handleOpenSkillsDialog = (skills) => {
-    setSelectedSkills(skills); // Set selected skills
-    setOpenSkillsDialog(true); // Open the skills dialog
+    setSelectedSkills(skills);
+    setOpenSkillsDialog(true);
   };
 
   const handleCloseSkillsDialog = () => {
-    setOpenSkillsDialog(false); // Close the skills dialog
+    setOpenSkillsDialog(false);
   };
 
   const handleDownloadPDF = () => {
-    // Fetch the PDF from the backend
-    fetch("http://localhost:5000/api/volunteerHistoryPDF", {
-      method: "GET",
-    })
-      .then((response) => response.blob()) // Get the response as a blob (PDF file)
+    fetch("http://localhost:5000/api/volunteerHistoryPDF", { method: "GET" })
+      .then((response) => response.blob())
       .then((blob) => {
-        // Create a URL for the blob and download it
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "volunteer_history.pdf"; // Name for the downloaded file
+        link.download = "volunteer_history.pdf";
         link.click();
       })
-      .catch((error) => {
-        console.error("Error downloading PDF:", error);
-      });
+      .catch((error) => console.error("Error downloading PDF:", error));
   };
 
   const handleDownloadCSV = () => {
@@ -156,29 +151,24 @@ const VolunteerHistory = () => {
       "Description",
     ];
 
-    const rows = filteredData.map((row) => [
+    const csvRows = filteredData.map((row) => [
       row.volunteer_name,
       row.event_name,
-      new Date(row.event_date).toLocaleDateString(),
+      isValidDate(row.event_date) ? new Date(row.event_date).toLocaleDateString() : "Invalid Date",
       row.participation_status,
       row.duration_hours,
       row.location,
-      row.required_skills.join(", "),
+      Array.isArray(row.required_skills) ? row.required_skills.join(", ") : "",
       row.urgency,
       row.event_description,
     ]);
 
     let csvContent = "data:text/csv;charset=utf-8,";
-
-    // Add the header row
     csvContent += headers.join(",") + "\n";
-
-    // Add each row of data
-    rows.forEach((rowArray) => {
-      csvContent += rowArray.join(",") + "\n";
+    csvRows.forEach((row) => {
+      csvContent += row.join(",") + "\n";
     });
 
-    // Create a link to trigger the download
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -204,13 +194,13 @@ const VolunteerHistory = () => {
       component="section"
       py={12}
       sx={{
-        position: "relative", // Ensures proper layering
+        position: "relative",
         backgroundImage: `url(${bgImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        height: "100vh", // Ensures the background spans the full height of the viewport
-        overflow: "hidden", // Prevents content from spilling
+        height: "100vh",
+        overflow: "hidden",
       }}
     >
       <Container>
@@ -219,7 +209,7 @@ const VolunteerHistory = () => {
           borderRadius="lg"
           shadow="lg"
           sx={{
-            backgroundColor: "rgba(255, 255, 255, 0.8)", // Slightly transparent white box
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
             border: "1px solid #ddd",
           }}
         >
@@ -238,46 +228,26 @@ const VolunteerHistory = () => {
                 fullWidth
               />
             </Grid>
-
             <Grid item xs={12}>
               <div style={{ height: 400, width: "100%" }}>
                 <DataGrid
                   rows={rows}
                   columns={columns}
-                  pageSize={5} // You can adjust this for pagination
-                  rowsPerPageOptions={[5]} // This adds pagination controls
-                  checkboxSelection // Adds checkboxes to rows
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                  checkboxSelection
                 />
               </div>
             </Grid>
-
-            {/* Parent Grid container with flex layout for the download buttons */}
             <Grid item xs={12}>
-              <Grid container spacing={3} direction="row" justifyContent="center">
+              <Grid container spacing={3} justifyContent="center">
                 <Grid item xs={6}>
-                  <Button
-                    variant="gradient"
-                    color="dark"
-                    onClick={handleDownloadPDF}
-                    fullWidth
-                    sx={{
-                      color: "white", // Make the button text white
-                    }}
-                  >
+                  <Button variant="gradient" color="dark" onClick={handleDownloadPDF} fullWidth>
                     Download PDF
                   </Button>
                 </Grid>
-
                 <Grid item xs={6}>
-                  <Button
-                    variant="gradient"
-                    color="dark"
-                    onClick={handleDownloadCSV}
-                    fullWidth
-                    sx={{
-                      color: "white", // Make the button text white
-                    }}
-                  >
+                  <Button variant="gradient" color="dark" onClick={handleDownloadCSV} fullWidth>
                     Download CSV
                   </Button>
                 </Grid>
@@ -287,7 +257,6 @@ const VolunteerHistory = () => {
         </MKBox>
       </Container>
 
-      {/* Description Dialog */}
       <Dialog open={openDescriptionDialog} onClose={handleCloseDescriptionDialog}>
         <DialogTitle>Event Description</DialogTitle>
         <DialogContent>
@@ -300,7 +269,6 @@ const VolunteerHistory = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Skills Dialog */}
       <Dialog open={openSkillsDialog} onClose={handleCloseSkillsDialog}>
         <DialogTitle>Required Skills</DialogTitle>
         <DialogContent>

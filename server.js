@@ -14,6 +14,12 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({ credentials: true, origin: "http://localhost:3000" })); // Allow cookies from frontend
 app.use(bodyParser.json());
 
+// Debugging middleware to log incoming requests
+app.use((req, res, next) => {
+  console.log(`Request received: ${req.method} ${req.url}`);
+  next();
+});
+
 // Session middleware
 app.use(
   session({
@@ -32,8 +38,15 @@ app.use(
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "build")));
 
+  // Debugging for static file serving
+  app.use((req, res, next) => {
+    console.log(`Static file requested: ${req.url}`);
+    next();
+  });
+
   // Serve React index.html for all non-API requests in production
   app.get("*", (req, res) => {
+    console.log("Serving React app for:", req.url);
     res.sendFile(path.join(__dirname, "build", "index.html"));
   });
 }
@@ -50,6 +63,10 @@ const profileRoutes = require("./src/routes/profile"); // Combined profile file
 const sessionCheckRoutes = require("./src/routes/sessioncheck");
 const volunteerdashboardRoutes = require("./src/routes/volunteerdashboard");
 const volunteerHistoryPDFRoutes = require("./src/routes/volunteerHistoryPDF");
+const logoutRoute = require("./src/routes/logout");
+
+// Debugging for API route registration
+console.log("Registering API routes...");
 
 // Use API routes
 app.use("/api/login", loginRoutes);
@@ -63,6 +80,13 @@ app.use("/api/profile", profileRoutes); // Register the combined profile.js
 app.use("/api", sessionCheckRoutes);
 app.use("/api/volunteerHistoryPDF", volunteerHistoryPDFRoutes);
 app.use("/api/volunteerdashboard", volunteerdashboardRoutes);
+app.use("/api/logout", logoutRoute);
+
+// Fallback for unmatched routes
+app.use((req, res, next) => {
+  console.log(`Unmatched route: ${req.method} ${req.url}`);
+  res.status(404).send("Route not found");
+});
 
 // Start server
 app.listen(PORT, () => {
