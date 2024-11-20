@@ -58,7 +58,13 @@ async function fetchAdmin() {
 }
 
 const formatArray = (value) => {
-  return Array.isArray(value) ? value.join(", ") : "N/A";
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+  if (typeof value === "string") {
+    return value; // Handle availability strings directly
+  }
+  return "N/A";
 };
 
 function Presentation() {

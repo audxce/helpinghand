@@ -120,4 +120,32 @@ router.post("/", (req, res) => {
   });
 });
 
+// Delete a notification
+router.delete("/:notificationId", (req, res) => {
+  const userId = req.session?.user?.id; // Retrieve user ID from session
+  const { notificationId } = req.params; // Retrieve notification ID from request params
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized. Please log in." });
+  }
+
+  const query = `
+    DELETE FROM user_notifications
+    WHERE notificationId = ? AND user_id = ?
+  `;
+
+  db.query(query, [notificationId, userId], (error, results) => {
+    if (error) {
+      console.error("Database error:", error);
+      return res.status(500).json({ message: "Error deleting notification." });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: "Notification not found or not authorized to delete." });
+    }
+
+    res.json({ success: true, message: "Notification deleted successfully." });
+  });
+});
+
 module.exports = router;

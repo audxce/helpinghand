@@ -20,12 +20,4 @@ const dbConfig =
 
 const conn = mysql.createPool(dbConfig);
 
-conn.getConnection((err) => {
-    if (err) {
-        console.error("Database connection failed:", err.stack);
-    } else {
-        console.log("Connected to MySQL database.");
-    }
-});
-
 module.exports = conn;

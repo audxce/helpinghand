@@ -1,8 +1,8 @@
+import DeleteIcon from "@mui/icons-material/Delete"; // Import the delete icon
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { Backdrop } from "@mui/material";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Modal from "@mui/material/Modal";
 import axios from "axios";
@@ -11,49 +11,70 @@ import MKTypography from "components/MKTypography";
 import { useEffect, useState } from "react";
 
 function NotificationSystem() {
-  // Notifications state
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
 
-  // Fetch notifications from the backend on component mount
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/notifications", {
-          withCredentials: true, // Ensures the session cookie is sent
+          withCredentials: true,
         });
-        setNotifications(response.data);
+
+        const transformedNotifications = response.data.map((notification) => ({
+          id: notification.notificationId,
+          message: notification.message,
+          timestamp: notification.msgtimestamp,
+          type: notification.msgtype,
+          read: notification.readmsg === 1, // Map `readmsg` to `read`
+        }));
+
+        setNotifications(transformedNotifications);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
     };
 
-    fetchNotifications(); // Fetch notifications on mount
-  }, []); // Empty dependency array ensures it runs once on mount
+    fetchNotifications();
+  }, []);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
       await axios.put(
         "http://localhost:5000/api/notifications/mark-all-read",
         {},
-        {
-          withCredentials: true, // Ensures the session cookie is sent
-        }
+        { withCredentials: true }
       );
-      setNotifications((prevNotifications) => prevNotifications.map((n) => ({ ...n, read: true })));
+
+      // Update the local state to mark all notifications as read
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notification) => ({ ...notification, read: true }))
+      );
     } catch (error) {
       console.error("Error marking notifications as read:", error);
     }
   };
 
-  // Count unread notifications
+  const deleteNotification = async (notificationId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/notifications/${notificationId}`, {
+        withCredentials: true,
+      });
+
+      // Remove the deleted notification from the local state
+      setNotifications((prevNotifications) =>
+        prevNotifications.filter((notification) => notification.id !== notificationId)
+      );
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
+  };
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // Style for the modal pop-up box
   const modalStyle = {
     position: "absolute",
     top: "50%",
@@ -68,18 +89,12 @@ function NotificationSystem() {
 
   return (
     <>
-      {/* Notification Bell with Badge */}
       <IconButton color="inherit" onClick={handleOpen}>
-        <Badge
-          badgeContent={unreadCount > 0 ? " " : null} // Show red dot if there are unread notifications
-          color="error"
-          variant={unreadCount > 0 ? "dot" : null} // Red dot disappears when unreadCount is 0
-        >
+        <Badge badgeContent={unreadCount > 0 ? unreadCount : null} color="error">
           <NotificationsIcon />
         </Badge>
       </IconButton>
 
-      {/* Modal Pop-Up for Notifications */}
       <Modal
         open={open}
         onClose={handleClose}
@@ -91,21 +106,31 @@ function NotificationSystem() {
         }}
       >
         <Box sx={modalStyle}>
-          {/* Notification List */}
           {notifications.length === 0 ? (
-            <MKTypography variant="body2">No new notifications</MKTypography>
+            <MKTypography variant="body2">No notifications available</MKTypography>
           ) : (
             notifications.map((notification, index) => (
-              <div key={notification.id}>
+              <Box
+                key={notification.id}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={index < notifications.length - 1 ? 2 : 0}
+              >
                 <MKTypography variant="button" fontWeight={notification.read ? "regular" : "bold"}>
                   {notification.message}
                 </MKTypography>
-                {/* Adds a divider between notifications */}
-                {index < notifications.length - 1 && <Divider sx={{ my: 2 }} />}
-              </div>
+                <IconButton
+                  aria-label="delete"
+                  onClick={() => deleteNotification(notification.id)}
+                  size="small"
+                  sx={{ color: "red" }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
             ))
           )}
-          {/* Mark all as read button */}
           <MKBox display="flex" justifyContent="flex-end" sx={{ mt: 2 }}>
             <MKTypography variant="button" sx={{ cursor: "pointer" }} onClick={markAllAsRead}>
               Mark all as read
