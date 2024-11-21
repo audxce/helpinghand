@@ -56,8 +56,25 @@ function UserRegistration() {
     setError("");
     setSuccessMessage("");
 
+    // Ensure passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+
+    // Validate skills and preferences are arrays
+    if (!Array.isArray(skills)) {
+      setError("Skills must be a valid array");
+      return;
+    }
+    if (!Array.isArray(preferences)) {
+      setError("Preferences must be a valid array");
+      return;
+    }
+
+    // Validate availability
+    if (typeof availability !== "string" || !availability.includes("-")) {
+      setError("Availability must be a valid date range");
       return;
     }
 
@@ -73,12 +90,14 @@ function UserRegistration() {
         city,
         state,
         zipcode,
+        skills, // Send as an array
+        preferences, // Send as an array
+        availability, // Send as a string
       });
 
       setSuccessMessage("Registration successful! Redirecting...");
       console.log(response.data.message);
 
-      // Redirect to the login page
       setTimeout(() => {
         navigate("/pages/LandingPages/Login");
       }, 1500);

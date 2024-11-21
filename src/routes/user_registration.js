@@ -72,9 +72,9 @@ router.post("/", (req, res) => {
               city || null,
               state || null,
               zipcode || null,
-              JSON.stringify(skills || {}),
-              JSON.stringify(availability || {}),
-              preferences || null,
+              JSON.stringify(skills || []), // Convert array to JSON string
+              JSON.stringify(availability || []), // Convert availability to JSON string
+              JSON.stringify(preferences || []), // Convert array to JSON string
             ],
             (err) => {
               if (err) {

@@ -4,6 +4,7 @@ import MKButton from "components/MKButton";
 import MKInput from "components/MKInput";
 import MKTypography from "components/MKTypography";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 
 function NotificationPage() {
@@ -11,6 +12,8 @@ function NotificationPage() {
   const [msgType, setMsgType] = useState("general");
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const navigate = useNavigate();
 
   // Fetch available events for event notifications
   useEffect(() => {

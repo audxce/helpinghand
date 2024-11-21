@@ -57,28 +57,24 @@ describe("User Registration API", () => {
       callback(null, [{ email: "test@example.com" }]); // Mock existing user
     });
 
-    const res = await request(app)
-      .post("/api/user-registration")
-      .send({
-        email: "test@example.com",
-        password: "password123",
-        confirmPassword: "password123",
-        fullName: "John Doe",
-      });
+    const res = await request(app).post("/api/user-registration").send({
+      email: "test@example.com",
+      password: "password123",
+      confirmPassword: "password123",
+      fullName: "John Doe",
+    });
 
     expect(res.statusCode).toEqual(409);
     expect(res.body.message).toBe("User already exists");
   });
 
   it("should return an error if passwords do not match", async () => {
-    const res = await request(app)
-      .post("/api/user-registration")
-      .send({
-        email: "test@example.com",
-        password: "password123",
-        confirmPassword: "password456",
-        fullName: "John Doe",
-      });
+    const res = await request(app).post("/api/user-registration").send({
+      email: "test@example.com",
+      password: "password123",
+      confirmPassword: "password456",
+      fullName: "John Doe",
+    });
 
     expect(res.statusCode).toEqual(400);
     expect(res.body.message).toBe("Passwords do not match");
@@ -101,14 +97,12 @@ describe("User Registration API", () => {
       callback(new Error("Database error"), null); // Simulate a database error
     });
 
-    const res = await request(app)
-      .post("/api/user-registration")
-      .send({
-        email: "test@example.com",
-        password: "password123",
-        confirmPassword: "password123",
-        fullName: "John Doe",
-      });
+    const res = await request(app).post("/api/user-registration").send({
+      email: "test@example.com",
+      password: "password123",
+      confirmPassword: "password123",
+      fullName: "John Doe",
+    });
 
     expect(res.statusCode).toEqual(500);
     expect(res.body.message).toBe("Internal server error");

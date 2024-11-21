@@ -14,7 +14,6 @@ app.use("/api/volunteerHistory/pdf", volunteerHistoryPDFRoutes);
 jest.mock("../db");
 
 describe("Volunteer History Routes", () => {
-
   // Test for adding a new volunteer history entry
   test("should add a new volunteer history entry", async () => {
     const newEntry = {
@@ -26,14 +25,12 @@ describe("Volunteer History Routes", () => {
       location: "Location X",
       skills: ["Skill A"],
       urgency: "High",
-      description: "Description of Event 1"
+      description: "Description of Event 1",
     };
 
     db.query.mockResolvedValue([{ affectedRows: 1 }]); // Mocking successful DB insert
 
-    const response = await request(app)
-      .post("/api/volunteerHistory")
-      .send(newEntry);
+    const response = await request(app).post("/api/volunteerHistory").send(newEntry);
 
     expect(response.status).toBe(201);
     expect(response.body.message).toBe("Volunteer entry added successfully!");
@@ -49,12 +46,10 @@ describe("Volunteer History Routes", () => {
       location: "Location X",
       skills: ["Skill A"],
       urgency: "High",
-      description: "Description of Event 1"
+      description: "Description of Event 1",
     };
 
-    const response = await request(app)
-      .post("/api/volunteerHistory")
-      .send(newEntry);
+    const response = await request(app).post("/api/volunteerHistory").send(newEntry);
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Name, event, and date are required");
@@ -63,15 +58,12 @@ describe("Volunteer History Routes", () => {
   // Test for fetching volunteer history
   test("should return 404 if no volunteer history data found", async () => {
     db.query.mockResolvedValue([[]]); // Simulating empty DB response
-  
-    const response = await request(app)
-      .get("/api/volunteerHistory");
-  
+
+    const response = await request(app).get("/api/volunteerHistory");
+
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("No volunteer history data found");
   });
-
-  
 
   // Test for fetching volunteer history for PDF generation (success case)
   test("should fetch volunteer history for PDF generation", async () => {
@@ -85,8 +77,8 @@ describe("Volunteer History Routes", () => {
         location: "Location X",
         skills: ["Skill A"],
         urgency: "High",
-        description: "Description of Event 1"
-      }
+        description: "Description of Event 1",
+      },
     ];
 
     db.query.mockResolvedValue([mockData]); // Mocking DB query success
@@ -135,8 +127,8 @@ describe("Volunteer History Routes", () => {
         location: "Location X",
         skills: ["Skill A"],
         urgency: "High",
-        description: "Description of Event 1"
-      }
+        description: "Description of Event 1",
+      },
     ];
 
     db.query.mockResolvedValue([mockData]); // Mocking DB query success
@@ -148,7 +140,4 @@ describe("Volunteer History Routes", () => {
     expect(response.status).toBe(404);
     expect(response.header["content-type"]).toBe("text/html; charset=utf-8");
   });
-
-
 });
-  

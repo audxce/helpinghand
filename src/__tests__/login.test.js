@@ -43,12 +43,10 @@ describe("Login API", () => {
       callback(null, true); // Password matches
     });
 
-    const res = await request(app)
-      .post("/api/login")
-      .send({
-        email: "test@example.com",
-        password: "password123",
-      });
+    const res = await request(app).post("/api/login").send({
+      email: "test@example.com",
+      password: "password123",
+    });
 
     console.log("Response:", res.body); // Debugging output for troubleshooting
 
@@ -58,9 +56,7 @@ describe("Login API", () => {
   });
 
   it("should return an error if email and password are not provided", async () => {
-    const res = await request(app)
-      .post("/api/login")
-      .send({}); // Missing email and password
+    const res = await request(app).post("/api/login").send({}); // Missing email and password
 
     expect(res.statusCode).toEqual(400);
     expect(res.body.message).toBe("Email and password are required");
@@ -72,12 +68,10 @@ describe("Login API", () => {
       callback(null, []); // No user found
     });
 
-    const res = await request(app)
-      .post("/api/login")
-      .send({
-        email: "nonexistent@example.com",
-        password: "password123",
-      });
+    const res = await request(app).post("/api/login").send({
+      email: "nonexistent@example.com",
+      password: "password123",
+    });
 
     expect(res.statusCode).toEqual(401);
     expect(res.body.message).toBe("Invalid email or password");
@@ -101,12 +95,10 @@ describe("Login API", () => {
       callback(null, false); // Password does not match
     });
 
-    const res = await request(app)
-      .post("/api/login")
-      .send({
-        email: "test@example.com",
-        password: "wrongpassword",
-      });
+    const res = await request(app).post("/api/login").send({
+      email: "test@example.com",
+      password: "wrongpassword",
+    });
 
     expect(res.statusCode).toEqual(401);
     expect(res.body.message).toBe("Invalid email or password");
@@ -118,12 +110,10 @@ describe("Login API", () => {
       callback(new Error("Database error"), null);
     });
 
-    const res = await request(app)
-      .post("/api/login")
-      .send({
-        email: "test@example.com",
-        password: "password123",
-      });
+    const res = await request(app).post("/api/login").send({
+      email: "test@example.com",
+      password: "password123",
+    });
 
     expect(res.statusCode).toEqual(500);
     expect(res.body.message).toBe("Internal server error");
@@ -147,12 +137,10 @@ describe("Login API", () => {
       callback(new Error("Bcrypt error"), null);
     });
 
-    const res = await request(app)
-      .post("/api/login")
-      .send({
-        email: "test@example.com",
-        password: "password123",
-      });
+    const res = await request(app).post("/api/login").send({
+      email: "test@example.com",
+      password: "password123",
+    });
 
     expect(res.statusCode).toEqual(500);
     expect(res.body.message).toBe("Internal server error");

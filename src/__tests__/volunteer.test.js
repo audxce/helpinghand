@@ -22,7 +22,9 @@ describe("POST /api/volunteer", () => {
       .send({ volunteerName: "Volunteer 1", eventName: "Event 2" });
 
     expect(response.status).toBe(200);
-    expect(response.body.message).toBe("Volunteer and event do not match. Incompatible skill, location, etc.");
+    expect(response.body.message).toBe(
+      "Volunteer and event do not match. Incompatible skill, location, etc."
+    );
   });
 
   test("should return 404 if the volunteer is not found", async () => {
@@ -44,18 +46,14 @@ describe("POST /api/volunteer", () => {
   });
 
   test("should return 400 if volunteerName or eventName is missing", async () => {
-    const response = await request(app)
-      .post("/api/volunteer")
-      .send({ volunteerName: "" }); // Missing eventName
+    const response = await request(app).post("/api/volunteer").send({ volunteerName: "" }); // Missing eventName
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("All fields are required");
   });
 
   test("should return 400 if both volunteerName and eventName are missing", async () => {
-    const response = await request(app)
-      .post("/api/volunteer")
-      .send({}); // Missing both fields
+    const response = await request(app).post("/api/volunteer").send({}); // Missing both fields
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("All fields are required");

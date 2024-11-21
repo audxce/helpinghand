@@ -102,12 +102,10 @@ describe("Notifications API", () => {
         callback(null);
       });
 
-    const res = await request(app)
-      .post("/api/notifications")
-      .send({
-        message: "Test notification",
-        msgtype: "general",
-      });
+    const res = await request(app).post("/api/notifications").send({
+      message: "Test notification",
+      msgtype: "general",
+    });
 
     expect(res.statusCode).toEqual(200);
     expect(res.body.message).toBe("Notification sent to all users.");
@@ -153,12 +151,10 @@ describe("Notifications API", () => {
       callback(new Error("Database error"), null);
     });
 
-    const res = await request(app)
-      .post("/api/notifications")
-      .send({
-        message: "Test notification",
-        msgtype: "general",
-      });
+    const res = await request(app).post("/api/notifications").send({
+      message: "Test notification",
+      msgtype: "general",
+    });
 
     expect(res.statusCode).toEqual(500);
     expect(res.body.message).toBe("Error creating notification.");
@@ -184,13 +180,11 @@ describe("Notifications API", () => {
         callback(null);
       });
 
-    const res = await request(app)
-      .post("/api/notifications")
-      .send({
-        message: "Event notification",
-        msgtype: "event",
-        eventId: 1,
-      });
+    const res = await request(app).post("/api/notifications").send({
+      message: "Event notification",
+      msgtype: "event",
+      eventId: 1,
+    });
 
     expect(res.statusCode).toEqual(200);
     expect(res.body.message).toBe("Notification sent to event users.");
