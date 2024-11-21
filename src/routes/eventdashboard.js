@@ -1,6 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
 const db = require("../db"); // Adjust the path to your actual db connection file
 
 const router = express.Router();
@@ -20,7 +18,7 @@ const convertTo24Hour = (time) => {
 
 // POST route to create or update an event
 router.post("/", async (req, res) => {
-  console.log("POST request received at /volunteerdashboard");
+  console.log("POST request received at /eventdashboard");
   console.log("Request body:", req.body);
 
   const {
@@ -126,7 +124,7 @@ router.post("/", async (req, res) => {
 
 // GET route to fetch all events
 router.get("/", async (req, res) => {
-  console.log("GET request received at /volunteerdashboard");
+  console.log("GET request received at /eventdashboard");
   try {
     const [events] = await db.query("SELECT * FROM EventDetails");
     console.log("Data fetched from the database:", events);
@@ -139,7 +137,7 @@ router.get("/", async (req, res) => {
 
 // GET route to fetch active events
 router.get("/active", async (req, res) => {
-  console.log("GET request received at /volunteerdashboard/active");
+  console.log("GET request received at /eventdashboard/active");
   try {
     // Query for events where activeEvent is 1 (active)
     const [events] = await db.query("SELECT * FROM EventDetails WHERE activeEvent = 1");
@@ -159,20 +157,26 @@ router.get("/active", async (req, res) => {
   }
 });
 
-router.delete("/api/eventdashboard/:EventID", async (req, res) => {
+router.delete("/:EventID", async (req, res) => {
   const { EventID } = req.params;
-  if (!EventID) {
+
+  // Validate EventID: it should be numeric and not empty
+  if (!EventID || isNaN(EventID)) {
     return res.status(400).json({ message: "Invalid event ID" });
   }
 
   try {
-    await db.query("DELETE FROM EventDetails WHERE EventID = ?", [EventID]);
+    const result = await db.query("DELETE FROM EventDetails WHERE EventID = ?", [EventID]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
     res.status(200).json({ message: "Event deleted successfully" });
   } catch (error) {
     console.error("Error deleting event:", error);
     res.status(500).json({ message: "Failed to delete event" });
   }
-  console.log("Request received to delete EventID:", req.params.EventID);
 });
 
 module.exports = router;

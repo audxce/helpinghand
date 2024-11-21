@@ -64,7 +64,7 @@ const sessionCheckRoutes = require("./src/routes/sessioncheck");
 const volunteerdashboardRoutes = require("./src/routes/volunteerdashboard");
 const volunteerHistoryPDFRoutes = require("./src/routes/volunteerHistoryPDF");
 const logoutRoute = require("./src/routes/logout");
-
+const eventDashboardRoutes = require("./src/routes/eventdashboard");
 // Debugging for API route registration
 console.log("Registering API routes...");
 
@@ -81,6 +81,7 @@ app.use("/api", sessionCheckRoutes);
 app.use("/api/volunteerHistoryPDF", volunteerHistoryPDFRoutes);
 app.use("/api/volunteerdashboard", volunteerdashboardRoutes);
 app.use("/api/logout", logoutRoute);
+app.use("/api/eventDashboard", eventDashboardRoutes);
 
 // Fallback for unmatched routes
 app.use((req, res, next) => {

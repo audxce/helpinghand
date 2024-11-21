@@ -9,9 +9,9 @@ import PropTypes from "prop-types";
 import hhlogo from "assets/images/hhlogo.png";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import IconButton from "@mui/material/IconButton";
-//import { useNavigate } from "react-router-dom"; // Import useNavigate at the top
-import AddCircleIcon from "@mui/icons-material/AddCircle"; // Import the AddCircle icon
 import DeleteIcon from "@mui/icons-material/Delete"; // Import the Delete icon
+import { useNavigate } from "react-router-dom"; // Import useNavigate at the top
+import AddCircleIcon from "@mui/icons-material/AddCircle"; // Import AddCircleIcon at the top
 
 // Function to generate a random color from a list
 const getRandomColor = () => {
@@ -23,17 +23,7 @@ const getRandomColor = () => {
 export default function MediaCardList() {
   const [cardsData, setCardsData] = useState([]);
   const hasFetchedData = useRef(false); // Use ref to track if data has been fetched
-
-  useEffect(() => {
-    const volunteerCards = [];
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith("volunteer-")) {
-        const card = JSON.parse(localStorage.getItem(key));
-        volunteerCards.push(card);
-      }
-    });
-    setCardsData(volunteerCards); // Display on Volunteer Dashboard
-  }, []);
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     async function fetchData() {
@@ -42,6 +32,7 @@ export default function MediaCardList() {
         try {
           const response = await axios.get("http://localhost:5000/api/volunteerdashboard/"); // Fetch data from the API endpoint
           setCardsData(response.data); // Update the state with fetched data
+          console.log("Fetched Cards Data:", response.data);
           hasFetchedData.current = true; // Mark data as fetched to prevent re-fetching
         } catch (error) {
           console.error("Error fetching data:", error); // Log error if data fetching fails
@@ -131,45 +122,30 @@ export default function MediaCardList() {
           setCardsData={setCardsData}
         />
       ))}
-
-      {/* Add Event Card */}
+      {/* Add Event Button Styled as a Card */}
       <Card
         sx={{
           width: 345,
           height: 350,
           display: "flex",
-          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           borderRadius: "16px",
           boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.5)",
+          margin: "16px", // Match this to the margin of other cards
           transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
-          margin: "16px",
           "&:hover": {
             transform: "scale(1.05)",
             boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.3)",
           },
           cursor: "pointer",
         }}
-        onClick={() => {
-          const newEvent = {
-            EventID: Date.now(),
-            image: "",
-            eventName: "New Event",
-            eventDescription: "Description of the new event.",
-            state: "New Location",
-            startTime: "12:00 PM",
-            endTime: "2:00 PM",
-            requiredSkills: ["Skill 1", "Skill 2"],
-          };
-
-          setCardsData((prevCards) => [...prevCards, newEvent]);
-        }}
+        onClick={() => navigate("/pages/LandingPages/event")} // Navigate to Add Events form
       >
-        <Typography variant="h6" color="teal">
-          Add Event
+        <Typography variant="h6" color="#8dd5f0">
+          Create Event
         </Typography>
-        <AddCircleIcon style={{ fontSize: 60, color: "teal" }} />
+        <AddCircleIcon style={{ fontSize: 60, color: "#8dd5f0" }} />
       </Card>
     </div>
   );
@@ -202,9 +178,9 @@ function MediaCard({
   setCardsData,
 }) {
   const randomColor = getRandomColor();
-  // const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
 
-  // Parse `requiredSkills` if it's a string
+  // Parse requiredSkills if it's a string
   let skillsArray = [];
   if (typeof requiredSkills === "string") {
     try {
@@ -330,13 +306,11 @@ function MediaCard({
           bottom: 0,
           right: 0,
           display: "flex",
-          justifyContent: "flex-end",
-          gap: "8px", // Space between buttons
+          justifyContent: "flex-end", // Align to the right
           marginRight: 2,
           marginBottom: 1,
         }}
       >
-        {/* Add to Volunteer Dashboard Button */}
         <IconButton
           aria-label="add-to-volunteer-dashboard"
           color="primary"
@@ -346,27 +320,26 @@ function MediaCard({
             },
           }}
           onClick={() => {
-            // Pass card data to Volunteer Dashboard
-            localStorage.setItem(
-              `volunteer-${EventID}`,
-              JSON.stringify({
-                EventID,
-                image,
-                eventName,
-                eventDescription,
-                state,
-                startTime,
-                endTime,
-                requiredSkills,
-              })
-            );
-            console.log(`Event added to Volunteer Dashboard: ${eventName}`);
+            navigate("/pages/LandingPages/VolunteerDash", {
+              state: {
+                cardData: {
+                  EventID,
+                  image,
+                  eventName,
+                  eventDescription,
+                  state,
+                  startTime,
+                  endTime,
+                  requiredSkills,
+                },
+              },
+            });
+            console.log(`Event added to volunteer dashboard: ${eventName}`);
           }}
         >
           <AddCircleIcon />
         </IconButton>
 
-        {/* Delete Button */}
         <IconButton
           aria-label="delete"
           color="error"
@@ -394,7 +367,6 @@ function MediaCard({
         >
           <DeleteIcon />
         </IconButton>
-        {/* Add Event Button Styled as a Card */}
       </CardActions>
     </Card>
   );

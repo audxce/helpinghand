@@ -31,6 +31,7 @@ import Icon from "@mui/material/Icon";
 
 import AdminDash from "layouts/pages/LandingPages/Admin";
 import Event from "layouts/pages/LandingPages/event";
+import EventDash from "layouts/pages/LandingPages/event-dash";
 import Login from "layouts/pages/LandingPages/login";
 import ProfileEdit from "layouts/pages/LandingPages/profile-edit";
 import UserRegistration from "layouts/pages/LandingPages/user-registration";
@@ -75,7 +76,7 @@ const routes = [
             component: <VolunteerHistory />,
           },
           {
-            name: "Events",
+            name: "Create Event",
             route: "/pages/LandingPages/event",
             component: <Event />,
           },
@@ -93,6 +94,11 @@ const routes = [
             name: "Volunteer Dashboard",
             route: "/pages/LandingPages/VolunteerDash",
             component: <VolunteerDash />,
+          },
+          {
+            name: "Event Dashboard",
+            route: "/pages/LandingPages/EventDash",
+            component: <EventDash />,
           },
         ],
       },

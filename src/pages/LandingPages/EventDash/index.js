@@ -2,48 +2,17 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import bgImage from "assets/images/hh-bg.jpg";
 import hhlogo from "assets/images/hhlogo.png";
-import axios from "axios";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
 import DefaultFooter from "examples/Footers/SimpleFooter";
 import NewNavbar from "examples/Navbars/DefaultNavbar/index2";
 import footerRoutes from "footer.routes";
-import { useEffect, useRef, useState } from "react";
-import routes from "routes.volunteer";
+import { useState } from "react";
+import routes from "routes.eventdash";
 import MediaCardList from "./MediaCard"; // Import MediaCardList component
 
 function Presentation() {
   const [cardsData, setCardsData] = useState([]);
-  const hasFetchedData = useRef(false);
-
-  useEffect(() => {
-    async function fetchData() {
-      if (!hasFetchedData.current) {
-        try {
-          const response = await axios.get("http://localhost:5000/api/volunteerdashboard/");
-          setCardsData(response.data);
-          hasFetchedData.current = true;
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          // Fallback data
-          setCardsData([
-            {
-              id: 1,
-              image: "",
-              title: "Test Event 1",
-              description: "This is a test description for event 1.",
-              location: "Test Location 1",
-              startTime: "10:00 AM",
-              endTime: "12:00 PM",
-              requiredSkills: ["Skill A", "Skill B"],
-            },
-            // Add other fallback data as needed
-          ]);
-        }
-      }
-    }
-    fetchData();
-  }, []);
 
   return (
     <>
@@ -52,7 +21,7 @@ function Presentation() {
         minHeight="75vh"
         width="100%"
         sx={{
-          backgroundImage: `url(${bgImage})`,
+          backgroundImage: `url(${bgImage})`, // Use backticks and wrap in curly braces
           backgroundSize: "cover",
           backgroundPosition: "top",
           backgroundAttachment: "fixed",
@@ -102,7 +71,7 @@ function Presentation() {
         p={5}
       >
         <MKTypography variant="h4" color="textPrimary" mb={2}>
-          Your Dashboard
+          Upcoming Events
         </MKTypography>
         <MediaCardList cardsData={cardsData} setCardsData={setCardsData} />
       </MKBox>

@@ -33,7 +33,7 @@ import Event from "layouts/pages/LandingPages/event";
 import ProfileEdit from "layouts/pages/LandingPages/profile-edit";
 //import VolunteerForms from "layouts/pages/LandingPages/volunteer-forms";
 import VolunteerHistory from "layouts/pages/LandingPages/volunteer-history";
-import EventDash from "layouts/pages/LandingPages/event-dash";
+import VolunteerDash from "layouts/pages/LandingPages/volunteer-dash";
 
 const routes = [
   {
@@ -61,9 +61,9 @@ const routes = [
             component: <Event />,
           },
           {
-            name: "Events",
-            route: "/pages/LandingPages/EventDash",
-            component: <EventDash />,
+            name: "Volunteer Dashboard",
+            route: "/pages/LandingPages/VolunteerDash",
+            component: <VolunteerDash />,
           },
         ],
       },

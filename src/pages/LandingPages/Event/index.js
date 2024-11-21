@@ -131,6 +131,7 @@ function Event() {
     try {
       const response = await axios.post("http://localhost:5000/api/event", formDataToSend); // Send form data to your backend
       console.log("Event created:", response.data); // Log the response from the backend
+      navigate("/pages/LandingPages/EventDash"); // Navigate to the event dashboard after successful submission
     } catch (err) {
       console.error("Error creating event:", err.response ? err.response.data : err.message);
     }
@@ -426,7 +427,7 @@ function Event() {
                         outline: "none",
                       },
                     }}
-                    onClick={() => navigate("/landingpage")} // Navigate to the landing page
+                    onClick={() => navigate(-1)} // Navigate to the landing page
                   >
                     Cancel
                   </MKButton>
