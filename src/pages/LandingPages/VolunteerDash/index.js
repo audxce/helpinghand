@@ -101,11 +101,21 @@ function Presentation() {
         height="100%"
         p={5}
       >
-        <MKTypography variant="h4" color="textPrimary" mb={2}>
-          Your Dashboard
-        </MKTypography>
+        <MKBox
+          display="flex"
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="flex-start"
+          mb={2}
+        >
+          <MKTypography variant="h4" color="textPrimary" ml={1}>
+            Your Dashboard
+          </MKTypography>
+        </MKBox>
+
         <MediaCardList cardsData={cardsData} setCardsData={setCardsData} />
       </MKBox>
+
       <MKBox pt={6} px={1} mt={6}>
         <DefaultFooter content={footerRoutes} />
       </MKBox>

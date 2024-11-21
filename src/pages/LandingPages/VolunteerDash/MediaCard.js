@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
 import hhlogo from "assets/images/hhlogo.png";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import IconButton from "@mui/material/IconButton";
-//import { useNavigate } from "react-router-dom"; // Import useNavigate at the top
+import { useNavigate } from "react-router-dom"; // Import useNavigate at the top
 import AddCircleIcon from "@mui/icons-material/AddCircle"; // Import the AddCircle icon
 import DeleteIcon from "@mui/icons-material/Delete"; // Import the Delete icon
 
@@ -23,7 +23,7 @@ const getRandomColor = () => {
 export default function MediaCardList() {
   const [cardsData, setCardsData] = useState([]);
   const hasFetchedData = useRef(false); // Use ref to track if data has been fetched
-
+  const navigate = useNavigate(); // Initialize navigate
   useEffect(() => {
     const volunteerCards = [];
     Object.keys(localStorage).forEach((key) => {
@@ -133,6 +133,7 @@ export default function MediaCardList() {
       ))}
 
       {/* Add Event Card */}
+      {/* Add Event Card */}
       <Card
         sx={{
           width: 345,
@@ -151,23 +152,10 @@ export default function MediaCardList() {
           },
           cursor: "pointer",
         }}
-        onClick={() => {
-          const newEvent = {
-            EventID: Date.now(),
-            image: "",
-            eventName: "New Event",
-            eventDescription: "Description of the new event.",
-            state: "New Location",
-            startTime: "12:00 PM",
-            endTime: "2:00 PM",
-            requiredSkills: ["Skill 1", "Skill 2"],
-          };
-
-          setCardsData((prevCards) => [...prevCards, newEvent]);
-        }}
+        onClick={() => navigate("/pages/LandingPages/EventDash")} // Navigate directly
       >
         <Typography variant="h6" color="teal">
-          Add Event
+          Go to Event Dashboard
         </Typography>
         <AddCircleIcon style={{ fontSize: 60, color: "teal" }} />
       </Card>
@@ -202,7 +190,7 @@ function MediaCard({
   setCardsData,
 }) {
   const randomColor = getRandomColor();
-  // const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate(); // Initialize navigate
 
   // Parse `requiredSkills` if it's a string
   let skillsArray = [];
@@ -338,7 +326,7 @@ function MediaCard({
       >
         {/* Add to Volunteer Dashboard Button */}
         <IconButton
-          aria-label="add-to-volunteer-dashboard"
+          aria-label="navigate-to-eventdashboard"
           color="primary"
           sx={{
             "&:hover": {
@@ -346,26 +334,13 @@ function MediaCard({
             },
           }}
           onClick={() => {
-            // Pass card data to Volunteer Dashboard
-            localStorage.setItem(
-              `volunteer-${EventID}`,
-              JSON.stringify({
-                EventID,
-                image,
-                eventName,
-                eventDescription,
-                state,
-                startTime,
-                endTime,
-                requiredSkills,
-              })
-            );
-            console.log(`Event added to Volunteer Dashboard: ${eventName}`);
+            // Optionally store data or perform any necessary logic before navigation
+
+            navigate("/pages/LandingPages/EventDash"); // Replace with the actual route for your Event Dashboard
           }}
         >
           <AddCircleIcon />
         </IconButton>
-
         {/* Delete Button */}
         <IconButton
           aria-label="delete"
