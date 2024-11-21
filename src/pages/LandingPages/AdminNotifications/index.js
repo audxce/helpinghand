@@ -125,7 +125,6 @@ function NotificationPage() {
         </MKBox>
       </MKBox>
 
-      {/* Return to Home Button 
       <MKBox mt={4} textAlign="center">
         <MKButton
           color="secondary"
@@ -133,7 +132,7 @@ function NotificationPage() {
         >
           Return to Home
         </MKButton>
-      </MKBox>*/}
+      </MKBox>
     </MKBox>
   );
 }

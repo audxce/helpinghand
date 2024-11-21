@@ -141,7 +141,9 @@ router.delete("/:notificationId", (req, res) => {
     }
 
     if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "Notification not found or not authorized to delete." });
+      return res
+        .status(404)
+        .json({ message: "Notification not found or not authorized to delete." });
     }
 
     res.json({ success: true, message: "Notification deleted successfully." });
