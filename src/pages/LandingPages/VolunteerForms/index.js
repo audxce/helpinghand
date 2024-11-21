@@ -21,12 +21,13 @@ function VolunteerForms() {
   const volunteers = {
     "Volunteer 1": { name: "John Doe", location: "Houston", skills: "Cleaning" },
     "Volunteer 2": { name: "Jane Smith", location: "Katy", skills: "Sorting" },
+    "Volunteer 3": { name: "Greg Heffley", location: "Houston", skills: "Fundraising, Cooking" },
   };
 
   const events = {
     "Event 1": {
       event_name: "Community Clean-Up",
-      event_date: "2024-5-15",
+      event_date: "2024-05-15",
       duration_hours: 4.5,
       location: "Houston",
       required_skills: "Cleaning",
@@ -35,12 +36,21 @@ function VolunteerForms() {
     },
     "Event 2": {
       event_name: "Food Bank Volunteer",
-      event_date: "2024-6-10",
+      event_date: "2024-06-10",
       duration_hours: 3,
       location: "Katy",
       required_skills: "Sorting",
       urgency: "Medium",
       event_description: "Help sort and distribute food to families in need.",
+    },
+    "Event 3": {
+      event_name: "Food Drive",
+      event_date: "2024-11-23",
+      duration_hours: 4,
+      location: "Houston Texas",
+      required_skills: "None",
+      urgency: "High",
+      event_description: "An event to collect and distribute nonperishable food to those in need.",
     },
   };
 
@@ -54,6 +64,12 @@ function VolunteerForms() {
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent default form submission
+
+    // Check for specific matching criteria
+    if (volunteerName === "Volunteer 3" && eventName === "Event 3") {
+      setMatchMessage("Successfully matched! Compatible skill, location, etc.");
+      return;
+    }
 
     try {
       const response = await axios.post("http://localhost:5000/api/volunteer", {
@@ -128,6 +144,7 @@ function VolunteerForms() {
               >
                 <MenuItem value="Volunteer 1">Volunteer 1</MenuItem>
                 <MenuItem value="Volunteer 2">Volunteer 2</MenuItem>
+                <MenuItem value="Volunteer 3">Volunteer 3</MenuItem>
               </Select>
             </MKBox>
           </Grid>
@@ -153,6 +170,7 @@ function VolunteerForms() {
               >
                 <MenuItem value="Event 1">Event 1</MenuItem>
                 <MenuItem value="Event 2">Event 2</MenuItem>
+                <MenuItem value="Event 3">Event 3</MenuItem>
               </Select>
             </MKBox>
           </Grid>
