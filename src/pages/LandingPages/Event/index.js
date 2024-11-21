@@ -14,6 +14,7 @@ import Select from "@mui/material/Select";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormGroup from "@mui/material/FormGroup";
 import background from "../../../assets/images/hh-bg.jpg";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 // For date picker
 import DatePicker from "react-datepicker";
@@ -159,6 +160,8 @@ function Event() {
     height: "100%", // Makes the div take up 100% of its parent
     minHeight: "100vh",
   };
+
+  const navigate = useNavigate(); // Initialize navigate
 
   return (
     <div style={divStyle}>
@@ -408,21 +411,22 @@ function Event() {
                 </Grid>
 
                 <MKBox display="flex" justifyContent="flex-end" alignItems="center" mt={3}>
-                  {/* Cancel Button without border */}
+                  {/* Cancel Button with Navigation */}
                   <MKButton
                     variant="outlined"
                     color="secondary"
                     sx={{
-                      border: "none", // Remove the border
+                      border: "none",
                       "&:hover": {
-                        border: "none", // Ensure no border on hover
-                        backgroundColor: "rgba(0, 0, 0, 0.1)", // Optional: Add a subtle hover effect
+                        border: "none",
+                        backgroundColor: "rgba(0, 0, 0, 0.1)",
                       },
                       marginRight: 2,
                       "&:focus": {
-                        outline: "none", // Remove the focus outline
+                        outline: "none",
                       },
                     }}
+                    onClick={() => navigate("/landingpage")} // Navigate to the landing page
                   >
                     Cancel
                   </MKButton>

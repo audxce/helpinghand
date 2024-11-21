@@ -2,14 +2,6 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db"); // Adjust this if your database file is elsewhere
 
-function isValidJson(str) {
-  try {
-    return JSON.parse(str);
-  } catch {
-    return [];
-  }
-}
-
 router.get("/volunteer", async (req, res) => {
   const query = `
     SELECT userprofile.* 
@@ -40,7 +32,7 @@ router.get("/volunteer", async (req, res) => {
     //console.log(users);
     res.json(users);
   } catch (error) {
-    console.error("Database error:", error);
+    //console.error("Database error:", error);
     res.status(500).json({ message: "Error fetching user data" });
   }
 });
@@ -75,7 +67,7 @@ router.get("/admin", async (req, res) => {
     // console.log(users);
     res.json(users);
   } catch (error) {
-    console.error("Database error:", error);
+    //console.error("Database error:", error);
     res.status(500).json({ message: "Error fetching user data" });
   }
 });
@@ -112,7 +104,7 @@ router.get("/", async (req, res) => {
           : JSON.parse(user.availability || ""), // Ensure it's a string
     });
   } catch (error) {
-    console.error("Database error:", error);
+    //console.error("Database error:", error);
     res.status(500).json({ message: "Error fetching user data" });
   }
 });
@@ -156,7 +148,7 @@ router.post("/", async (req, res) => {
     await db.query("UPDATE UserProfile SET ? WHERE user_id = ?", [profileData, userId]);
     res.status(200).json({ message: "Profile updated successfully" });
   } catch (error) {
-    console.error("Database error:", error);
+    //console.error("Database error:", error);
     res.status(500).json({ message: "Error saving profile" });
   }
 });

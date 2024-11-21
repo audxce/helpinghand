@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const db = require("../../db"); // Adjust the path to your actual db connection file
+const db = require("../db"); // Adjust the path to your actual db connection file
 
 const router = express.Router();
 

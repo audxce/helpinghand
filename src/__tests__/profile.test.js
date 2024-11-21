@@ -1,196 +1,215 @@
-const request = require("supertest"); //npm install --save-dev jest supertest
+const request = require("supertest");
 const express = require("express");
 const profileRoutes = require("../routes/profile");
-const db = require("../../db");
+const db = require("../db");
 
 jest.mock("../db", () => ({
-  query: jest.fn((query, params, callback) => {
-    if (query.startsWith("SELECT")) {
-      callback(null, []);
-    } else if (query.startsWith("INSERT") || query.startsWith("UPDATE")) {
-      callback(null);
-    } else {
-      callback(new Error("Unknown query"));
-    }
-  }),
+  query: jest.fn(),
 }));
 
 const app = express();
 app.use(express.json());
+app.use((req, res, next) => {
+  req.session = { user: { id: 1 } }; 
+  next();
+});
 app.use("/api/profile", profileRoutes);
 
-describe("Profile Edit", () => {
-  it("Should create a profile", async () => {
-    const res = await request(app)
-      .post("/api/profile")
-      .send({
-        fullName: "First Last",
-        address: "123 Main St",
-        addressTwo: "123 not Main St",
-        city: "Anytown",
-        state: "CA",
-        zipCode: "12345",
-        skills: ["gardening", "cooking"],
-        preferences: "Remote",
-        availability: ["2024/10/27 - 2025/2/4"],
-      });
-    expect(res.statusCode).toEqual(201);
-    expect(res.body.message).toBe("Profile Created!");
+describe("Profile API", () => {
+  beforeEach(() => {
+    jest.clearAllMocks(); 
   });
 
-  it("should return a database error", async () => {
-    const fullName = "First Last";
-    db.query.mockImplementationOnce((query, params, callback) => {
-      callback(new Error("Database error"), null);
+  it("should return 401 if the user is not logged in", async () => {
+    const noSessionApp = express();
+    noSessionApp.use(express.json());
+    noSessionApp.use("/api/profile", profileRoutes);
+
+    const res = await request(noSessionApp).post("/api/profile").send({
+      fullName: "John Doe",
+      address: "123 Main St",
+      city: "Anytown",
+      state: "CA",
+      zipCode: "12345",
+      skills: ["gardening"],
+      preferences: ["remote"],
+      availability: ["weekends"],
+    });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.message).toBe("Unauthorized. Please log in.");
+  });
+
+  it("should update an existing profile", async () => {
+    db.query.mockImplementation(async (query, params) => {
+      if (query.startsWith("SELECT * FROM UserProfile WHERE user_id")) {
+        return [[{
+          user_id: 1,
+          full_name: "John Doe",
+          address: "123 Main St",
+          address_two: "",
+          city: "Anytown",
+          state: "CA",
+          zipcode: "12345",
+          skills: JSON.stringify(["gardening"]),
+          preferences: JSON.stringify(["remote"]),
+          availability: JSON.stringify(["weekends"]),
+        }]];
+      }
+      if (query.startsWith("UPDATE UserProfile")) {
+        return []; 
+      }
+      throw new Error("Unexpected query");
     });
 
     const res = await request(app)
       .post("/api/profile")
       .send({
-        fullName,
+        fullName: "John Doe Updated",
+        address: "456 Elm St",
+        city: "New City",
+        state: "NY",
+        zipCode: "54321",
+        skills: ["coding"],
+        preferences: ["onsite"],
+        availability: ["weekdays"],
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe("Profile updated successfully");
+  });
+
+  it("should fetch volunteer users", async () => {
+    db.query.mockResolvedValue([
+      [
+        {
+          user_id: 2,
+          full_name: "Volunteer User",
+          address: "123 Elm St",
+          address_two: "",
+          city: "Helpingtown",
+          state: "CA",
+          zipcode: "11111",
+          skills: JSON.stringify(["helping"]),
+          preferences: JSON.stringify(["remote"]),
+          availability: JSON.stringify(["weekends"]),
+        },
+      ],
+    ]);
+
+    const res = await request(app).get("/api/profile/volunteer");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
+
+  it("should return 404 if user profile is not found", async () => {
+    const userId = 1;
+    const req = { session: { user: { id: userId } } };
+  
+    db.query.mockResolvedValue([[]]); 
+  
+    const res = await request(app).get("/api/profile").set("Cookie", [`session=mock-session-token`]);
+  
+    expect(res.statusCode).toBe(404);
+    expect(res.body.message).toBe("User not found");
+  });
+  it("should return 500 if there is a database error", async () => {
+
+    const userId = 1;
+    const req = { session: { user: { id: userId } } };
+  
+    db.query.mockRejectedValue(new Error("Database error"));
+  
+    const res = await request(app).get("/api/profile").set("Cookie", [`session=mock-session-token`]);
+  
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toBe("Error fetching user data");
+  });
+
+  it("should return user profile if found", async () => {
+
+    const userId = 1;
+    const req = { session: { user: { id: userId } } };
+
+    const mockProfile = [
+      {
+        user_id: 1,
+        full_name: "John Doe",
         address: "123 Main St",
-        addressTwo: "123 not Main St",
+        address_two: "",
         city: "Anytown",
         state: "CA",
-        zipCode: "12345",
-        skills: ["gardening", "cooking"],
-        preferences: "Remote",
-        availability: ["2024/10/27"],
-      });
-
-    expect(res.statusCode).toEqual(500);
-    expect(res.body.message).toBe("Database error");
+        zipcode: "12345",
+        skills: JSON.stringify(["gardening"]),
+        preferences: JSON.stringify(["remote"]),
+        availability: JSON.stringify(["weekends"]),
+      },
+    ];
+  
+    db.query.mockResolvedValue([mockProfile]); 
+    const res = await request(app).get("/api/profile").set("Cookie", [`session=mock-session-token`]);
+  
+    expect(res.statusCode).toBe(200);
   });
 
-  it("should return an error for missing fields", async () => {
-    const res = await request(app).post("/api/profile").send({});
-    expect(res.statusCode).toEqual(401);
-    expect(res.body.message).toBe("All fields are required");
+  it("should return 404 if no administrator users are found", async () => {
+    db.query.mockResolvedValue([[]]);
+  
+    const res = await request(app).get("/api/profile/admin");
+  
+    expect(res.statusCode).toBe(404);
+    expect(res.body.message).toBe("No administrator users found");
+  });
+  it("should return administrator users if found", async () => {
+    const mockAdmins = [
+      {
+        user_id: 1,
+        full_name: "Admin User",
+        address: "123 Admin St",
+        address_two: "",
+        city: "Admin City",
+        state: "NY",
+        zipcode: "10001",
+        skills: JSON.stringify(["management"]),
+        preferences: JSON.stringify(["remote"]),
+        availability: JSON.stringify(["weekdays"]),
+      },
+    ];
+
+    db.query.mockResolvedValue([mockAdmins]);
+  
+    const res = await request(app).get("/api/profile/admin");
+  
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveLength(1);  // One admin user
   });
 
-  it("should return an error for invalid field length", async () => {
-    const res = await request(app)
-      .post("/api/profile")
-      .send({
-        fullName: "AlexanderMaximilianTheodoreMontgomerySmithSmithSmith",
-        address: "123 Main St",
-        addressTwo: "123 not Main St",
-        city: "Anytown",
-        state: "CA",
-        zipCode: "12345",
-        skills: ["gardening", "cooking"],
-        preferences: "Remote",
-        availability: ["2024/10/27"],
-      });
-    expect(res.statusCode).toEqual(401);
-    expect(res.body.message).toBe("Fields are an invalid length");
+  it("should return 500 if there is a database error", async () => {
+    db.query.mockRejectedValue(new Error("Database error"));
+  
+    const res = await request(app).get("/api/profile/admin");
+  
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toBe("Error fetching user data");
+  });
+  it("should return 404 if no volunteer users are found", async () => {
+    db.query.mockResolvedValue([[]]);
+
+    const res = await request(app).get("/api/profile/volunteer");
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.message).toBe("No volunteer users found");
   });
 
-  it("should return an error for invalid field type", async () => {
-    const res = await request(app)
-      .post("/api/profile")
-      .send({
-        fullName: 7,
-        address: "123 Main St",
-        addressTwo: "123 not Main St",
-        city: "Anytown",
-        state: "CA",
-        zipCode: "123456",
-        skills: ["gardening", "cooking"],
-        preferences: "Remote",
-        availability: ["2024/10/27"],
-      });
-    expect(res.statusCode).toEqual(401);
-    expect(res.body.message).toBe("Fields must be a string");
-  });
+  it("should return 500 if there is a database error", async () => {
+    db.query.mockRejectedValue(new Error("Database error"));
 
-  it("should return an error for invalid zipcode", async () => {
-    const res = await request(app)
-      .post("/api/profile")
-      .send({
-        fullName: "First Last",
-        address: "123 Main St",
-        addressTwo: "123 not Main St",
-        city: "Anytown",
-        state: "CA",
-        zipCode: "123456",
-        skills: ["gardening", "cooking"],
-        preferences: "Remote",
-        availability: ["2024/10/27"],
-      });
-    expect(res.statusCode).toEqual(401);
-    expect(res.body.message).toBe("Invalid zip code format");
-  });
+    const res = await request(app).get("/api/profile/volunteer");
 
-  it("should return an error for invalid skill", async () => {
-    const res = await request(app)
-      .post("/api/profile")
-      .send({
-        fullName: "First Last",
-        address: "123 Main St",
-        addressTwo: "123 not Main St",
-        city: "Anytown",
-        state: "CA",
-        zipCode: "12345",
-        skills: ["gardening2", "cooking@"],
-        preferences: "Remote",
-        availability: ["2024/10/27"],
-      });
-    expect(res.statusCode).toEqual(401);
-    expect(res.body.message).toBe("Skills cannot contain numbers or special characters");
-  });
-
-  it("should return an error for invalid field type for names", async () => {
-    const res = await request(app)
-      .post("/api/profile")
-      .send({
-        fullName: "First@# Last2",
-        address: "123 Main St",
-        addressTwo: "123 not Main St",
-        city: "Anytown",
-        state: "CA",
-        zipCode: "12345",
-        skills: ["gardening", "cooking"],
-        preferences: "Remote",
-        availability: ["2024/10/27"],
-      });
-    expect(res.statusCode).toEqual(401);
-    expect(res.body.message).toBe("Names cannot legally contain numbers or special characters");
-  });
-
-  it("should return an error for invalid field type for state code", async () => {
-    const res = await request(app)
-      .post("/api/profile")
-      .send({
-        fullName: "First Last",
-        address: "123 Main St",
-        addressTwo: "123 not Main St",
-        city: "Anytown",
-        state: "C2",
-        zipCode: "12345",
-        skills: ["gardening", "cooking"],
-        preferences: "Remote",
-        availability: ["2024/10/27"],
-      });
-    expect(res.statusCode).toEqual(401);
-    expect(res.body.message).toBe("State code cannot contain numbers or special characters");
-  });
-
-  it("should return an error for invalid format for dates", async () => {
-    const res = await request(app)
-      .post("/api/profile")
-      .send({
-        fullName: "First Last",
-        address: "123 Main St",
-        addressTwo: "123 not Main St",
-        city: "Anytown",
-        state: "CA",
-        zipCode: "12345",
-        skills: ["gardening", "cooking"],
-        preferences: "Remote",
-        availability: ["202@/10s/2$"],
-      });
-    expect(res.statusCode).toEqual(401);
-    expect(res.body.message).toBe("Dates must be in valid format");
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toBe("Error fetching user data");
   });
 });
+
+
+

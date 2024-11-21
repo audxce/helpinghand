@@ -18,9 +18,6 @@ const convertTo24Hour = (time) => {
   return `${hours}:${minutes}:00`; // Add seconds as '00'
 };
 
-// Removed the serialization from the top level
-// const requiredSkillsSerialized = JSON.stringify(requiredSkills);
-
 // POST route to create or update an event
 router.post("/", async (req, res) => {
   console.log("Request body received:", req.body); // Log incoming data
@@ -37,19 +34,8 @@ router.post("/", async (req, res) => {
     repeatEvent,
   } = req.body;
 
-  // Serialize requiredSkills after it's defined
-  const requiredSkillsSerialized = JSON.stringify(requiredSkills);
+  const requiredSkillsSerialized = JSON.stringify(requiredSkills); // Serialize requiredSkills
 
-  console.log("eventName:", eventName);
-  console.log("eventDescription:", eventDescription);
-  console.log("state:", state);
-  console.log("requiredSkills:", requiredSkills);
-  console.log("urgency:", urgency);
-  console.log("eventDate:", eventDate);
-  console.log("startTime:", startTime);
-  console.log("endTime:", endTime);
-  console.log("repeatEvent:", repeatEvent);
-  // Log the incoming request body for debugging
   console.log("Received POST request with data:", req.body);
 
   // Validation for required fields
@@ -62,8 +48,8 @@ router.post("/", async (req, res) => {
     !startTime ||
     !endTime ||
     !repeatEvent ||
-    !Array.isArray(requiredSkills) || // Check if requiredSkills is an array
-    requiredSkills.length === 0 // Check if array is empty
+    !Array.isArray(requiredSkills) ||
+    requiredSkills.length === 0
   ) {
     console.error("Validation failed - missing required fields");
     return res.status(400).json({ message: "All fields are required." });
@@ -87,11 +73,9 @@ router.post("/", async (req, res) => {
   try {
     // Check if the event already exists in the database
     console.log("Checking if event exists in the database...");
-    const [existingEvent] = await db.query("SELECT * FROM EventDetails WHERE eventName = ?", [
-      eventName,
-    ]);
+    const [rows] = await db.query("SELECT * FROM EventDetails WHERE eventName = ?", [eventName]);
 
-    if (existingEvent.length > 0) {
+    if (rows.length > 0) {
       // Update the existing event if it exists
       console.log("Event found. Updating existing event...");
       await db.query(
@@ -99,7 +83,7 @@ router.post("/", async (req, res) => {
         [
           eventDescription,
           state,
-          requiredSkillsSerialized, // Use serialized string here
+          requiredSkillsSerialized,
           urgency,
           eventDate,
           formattedStartTime,
@@ -119,7 +103,7 @@ router.post("/", async (req, res) => {
           eventName,
           eventDescription,
           state,
-          requiredSkillsSerialized, // Use serialized string here
+          requiredSkillsSerialized,
           urgency,
           eventDate,
           formattedStartTime,
@@ -133,7 +117,7 @@ router.post("/", async (req, res) => {
   } catch (error) {
     console.error("Database error:", error);
     if (error.sqlMessage) {
-      console.error("SQL Message:", error.sqlMessage); // Log SQL-specific errors if they exist
+      console.error("SQL Message:", error.sqlMessage);
     }
     res
       .status(500)
@@ -175,10 +159,10 @@ router.get("/active", async (req, res) => {
           event.requiredSkills = JSON.parse(event.requiredSkills);
         } catch (parseError) {
           console.error(`Error parsing requiredSkills for event ${event.eventName}:`, parseError);
-          event.requiredSkills = []; // Default to an empty array if parsing fails
+          event.requiredSkills = [];
         }
       } else {
-        event.requiredSkills = []; // Ensure it's an array even if null or undefined
+        event.requiredSkills = [];
       }
     });
 
