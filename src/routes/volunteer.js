@@ -5,11 +5,13 @@ const router = express.Router();
 const volunteers = [
   { name: "Volunteer 1", skill: "Skill A", location: "Location X" },
   { name: "Volunteer 2", skill: "Skill B", location: "Location Y" },
+  { name: "Volunteer 3", skill: "Skill C", location: "Location Z" },
 ];
 
 const events = [
   { name: "Event 1", skill: "Skill A", location: "Location X" },
   { name: "Event 2", skill: "Skill B", location: "Location Y" },
+  { name: "Event 3", skill: "Skill C", location: "Location Z" },
 ];
 
 router.post("/", (req, res) => {
