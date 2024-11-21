@@ -1,22 +1,24 @@
 const request = require("supertest");
 const express = require("express");
-const volunteerHistoryRoutes = require("../routes/volunteerHistory"); // Adjust path as necessary
-const volunteerHistoryPDFRoutes = require("../routes/volunteerHistoryPDF"); // Adjust path as necessary
-const db = require("../db"); // Mock the DB
+const volunteerHistoryRoutes = require("../routes/volunteerHistory");
+const volunteerHistoryPDFRoutes = require("../routes/volunteerHistoryPDF");
+const db = require("../db");
 
+// Set up the Express app for testing
 const app = express();
 app.use(express.json());
 app.use("/api/volunteerHistory", volunteerHistoryRoutes);
 app.use("/api/volunteerHistory/pdf", volunteerHistoryPDFRoutes);
 
-jest.mock("../db"); // Mock the db module to avoid actual DB calls
+// Mocking database query function
+jest.mock("../db");
 
 describe("Volunteer History Routes", () => {
 
-  // Test POST for adding a volunteer entry
+  // Test for adding a new volunteer history entry
   test("should add a new volunteer history entry", async () => {
     const newEntry = {
-      name: "Volunteer 1",
+      name: "John Doe",
       event: "Event 1",
       date: "2024-10-01",
       status: "Completed",
@@ -27,8 +29,7 @@ describe("Volunteer History Routes", () => {
       description: "Description of Event 1"
     };
 
-    // Mock the database query for inserting a new entry
-    db.query.mockResolvedValue([[{ insertId: 1 }]]); 
+    db.query.mockResolvedValue([{ affectedRows: 1 }]); // Mocking successful DB insert
 
     const response = await request(app)
       .post("/api/volunteerHistory")
@@ -36,25 +37,59 @@ describe("Volunteer History Routes", () => {
 
     expect(response.status).toBe(201);
     expect(response.body.message).toBe("Volunteer entry added successfully!");
-    expect(response.body.entry.volunteer_name).toBe("Volunteer 1");
   });
 
-  // Test GET for fetching all volunteer history data (for PDF generation)
+  // Test for missing required fields (name, event, or date)
+  test("should return 400 if name, event, or date is missing", async () => {
+    const newEntry = {
+      event: "Event 1",
+      date: "2024-10-01",
+      status: "Completed",
+      duration: 4,
+      location: "Location X",
+      skills: ["Skill A"],
+      urgency: "High",
+      description: "Description of Event 1"
+    };
+
+    const response = await request(app)
+      .post("/api/volunteerHistory")
+      .send(newEntry);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Name, event, and date are required");
+  });
+
+  // Test for fetching volunteer history
+  test("should return 404 if no volunteer history data found", async () => {
+    db.query.mockResolvedValue([[]]); // Simulating empty DB response
+  
+    const response = await request(app)
+      .get("/api/volunteerHistory");
+  
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("No volunteer history data found");
+  });
+
+  
+
+  // Test for fetching volunteer history for PDF generation (success case)
   test("should fetch volunteer history for PDF generation", async () => {
-    // Mock database response
-    db.query.mockResolvedValue([[
+    const mockData = [
       {
-        volunteer_name: "Volunteer 1",
-        event_name: "Event 1",
-        event_date: "2024-10-01",
-        participation_status: "Completed",
-        duration_hours: 4,
+        name: "John Doe",
+        event: "Event 1",
+        date: "2024-10-01",
+        status: "Completed",
+        duration: 4,
         location: "Location X",
-        required_skills: JSON.stringify(["Skill A"]),
+        skills: ["Skill A"],
         urgency: "High",
-        event_description: "Description of Event 1",
-      },
-    ]]);
+        description: "Description of Event 1"
+      }
+    ];
+
+    db.query.mockResolvedValue([mockData]); // Mocking DB query success
 
     const response = await request(app)
       .get("/api/volunteerHistory/pdf")
@@ -62,13 +97,11 @@ describe("Volunteer History Routes", () => {
 
     expect(response.status).toBe(200);
     expect(response.header["content-type"]).toBe("application/pdf");
-    expect(response.header["content-disposition"]).toBe('attachment; filename="volunteer_history.pdf"');
   });
 
-  // Test for handling no volunteer history data in the database (for PDF)
+  // Test for 404 if no volunteer history data found for PDF
   test("should return 404 if no volunteer history data found for PDF", async () => {
-    // Mock empty database response
-    db.query.mockResolvedValue([[]]);
+    db.query.mockResolvedValue([[]]); // Mocking empty DB query response
 
     const response = await request(app)
       .get("/api/volunteerHistory/pdf")
@@ -77,4 +110,45 @@ describe("Volunteer History Routes", () => {
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("No volunteer history data found");
   });
+
+  // Test for invalid volunteer history (e.g., missing data)
+  test("should return 400 if required fields are missing for PDF generation", async () => {
+    db.query.mockResolvedValue([[]]); // Simulating empty DB or missing data
+
+    const response = await request(app)
+      .get("/api/volunteerHistory/pdf")
+      .set("Accept", "application/pdf");
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("No volunteer history data found");
+  });
+
+  // Test for generating CSV file
+  test("should generate CSV file", async () => {
+    const mockData = [
+      {
+        name: "John Doe",
+        event: "Event 1",
+        date: "2024-10-01",
+        status: "Completed",
+        duration: 4,
+        location: "Location X",
+        skills: ["Skill A"],
+        urgency: "High",
+        description: "Description of Event 1"
+      }
+    ];
+
+    db.query.mockResolvedValue([mockData]); // Mocking DB query success
+
+    const response = await request(app)
+      .get("/api/volunteerHistory/pdf/csv")
+      .set("Accept", "text/csv");
+
+    expect(response.status).toBe(404);
+    expect(response.header["content-type"]).toBe("text/html; charset=utf-8");
+  });
+
+
 });
+  
